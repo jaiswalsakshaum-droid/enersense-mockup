@@ -1,0 +1,4 @@
+- [ ] Add EnerSense design tokens and global industrial styling
+- [ ] Add static mock data and shared responsive sidebar shell
+- [ ] Build onboarding, dashboard, equipment, machine detail, alerts, and audit pages
+- [ ] Add route metadata and verify the preview across desktop and mobile
