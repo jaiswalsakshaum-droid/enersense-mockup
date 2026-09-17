@@ -5,12 +5,15 @@ import pandas as pd
 
 from src.api.intelligence import get_intelligence
 from src.analysis.decision_engine import build_decision
+from src.simulation.simulate import simulate_what_if
+from src.simulation.counterfactual_explorer import explore_counterfactuals
+
 # =========================================================
 # EnnerSense ML API
 # =========================================================
 
 app = FastAPI(
-    title="EnnerSense ML Engine",
+    title="EnerSense ML Engine",
     description="AI-powered industrial energy and production optimization",
     version="1.0.0",
 )
@@ -64,6 +67,34 @@ class PredictionRequest(BaseModel):
     maintenance_age_days: float
     cycle_time_sec: float
 
+    shift: str
+
+
+class CounterfactualRequest(BaseModel):
+    machine_id: str
+    product_id: str
+    load_percent: float
+    speed_percent: float
+    ambient_temperature_c: float = 30
+    machine_temperature_c: float = 70
+    maintenance_age_days: float = 60
+    cycle_time_sec: float = 60
+    shift: str = "A"
+
+class WhatIfRequest(BaseModel):
+    machine_id: str
+    product_id: str
+
+    current_load_percent: float
+    current_speed_percent: float
+
+    what_if_load_percent: float
+    what_if_speed_percent: float
+
+    ambient_temperature_c: float
+    machine_temperature_c: float
+    maintenance_age_days: float
+    cycle_time_sec: float
     shift: str
 
 
@@ -193,3 +224,44 @@ async def analyze(request: PredictionRequest):
     "intelligence": intelligence,
     "decision": decision
 }
+
+
+@app.post("/simulate")
+async def simulate(request: WhatIfRequest):
+
+    result = simulate_what_if(
+        machine_id=request.machine_id,
+        product_id=request.product_id,
+
+        current_load_percent=request.current_load_percent,
+        current_speed_percent=request.current_speed_percent,
+
+        what_if_load_percent=request.what_if_load_percent,
+        what_if_speed_percent=request.what_if_speed_percent,
+
+        ambient_temperature_c=request.ambient_temperature_c,
+        machine_temperature_c=request.machine_temperature_c,
+        maintenance_age_days=request.maintenance_age_days,
+        cycle_time_sec=request.cycle_time_sec,
+        shift=request.shift
+    )
+
+    return result
+
+
+@app.post("/counterfactual")
+async def counterfactual(request: CounterfactualRequest):
+
+    result = explore_counterfactuals(
+    machine_id=request.machine_id,
+    product_id=request.product_id,
+    current_load_percent=request.load_percent,
+    current_speed_percent=request.speed_percent,
+    ambient_temperature_c=request.ambient_temperature_c,
+    machine_temperature_c=request.machine_temperature_c,
+    maintenance_age_days=request.maintenance_age_days,
+    cycle_time_sec=request.cycle_time_sec,
+    shift=request.shift,
+)
+
+    return result
