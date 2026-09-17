@@ -48,15 +48,20 @@ __pycache__/
 *.sln
 *.sw?
 
-
 # ML trained model binaries
 ml-engine/trained_models/*.joblib
 
-# Python
+# Python cache
 __pycache__/
 *.pyc
 
 # Virtual environments
 venv/
 ml-engine/venv/
+
+# Environment variables
 .env
+
+# Generated ML outputs
+ml-engine/data/*.csv
+ml-engine/data/*.png

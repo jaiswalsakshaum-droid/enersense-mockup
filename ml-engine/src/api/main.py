@@ -3,7 +3,8 @@ from pydantic import BaseModel
 import joblib
 import pandas as pd
 
-
+from src.api.intelligence import get_intelligence
+from src.analysis.decision_engine import build_decision
 # =========================================================
 # EnnerSense ML API
 # =========================================================
@@ -143,3 +144,52 @@ async def predict(
                 round(float(energy_per_unit), 5),
         }
     }
+
+# ============================================================
+# Intelligence endpoint
+# ============================================================
+
+@app.post("/intelligence")
+async def intelligence(request: PredictionRequest):
+
+    return get_intelligence(
+        request.model_dump()
+    )
+
+# ============================================================
+# Unified EnnerSense Analysis Endpoint
+# ============================================================
+
+@app.post("/analyze")
+async def analyze(request: PredictionRequest):
+
+    # Get ML predictions
+    predictions = await predict(request)
+
+    # Get intelligence insights
+    intelligence = get_intelligence(
+        request.model_dump()
+    )
+
+    decision = build_decision(
+      current_energy=predictions["predictions"]["energy_kwh"],
+        current_production=predictions["predictions"]["production_units"],
+        current_defect=predictions["predictions"]["defect_rate"],
+        current_load=request.load_percent,
+        current_speed=request.speed_percent,
+        energy_debt=intelligence["energy_debt"]["energy_debt_kwh"],
+        energy_debt_percent=intelligence["energy_debt"]["energy_debt_percent"],
+        avoidable_cost=intelligence["energy_debt"]["avoidable_cost_inr"],
+        dna_severity=intelligence["process_dna"]["severity"],
+        cascade_type=intelligence["cascade"]["type"],
+        cascade_severity=intelligence["cascade"]["severity"],
+    )
+
+    return {
+    "status": "success",
+    "machine_id": request.machine_id,
+    "product_id": request.product_id,
+    "predictions": predictions,
+    "intelligence": intelligence,
+    "decision": decision
+}
