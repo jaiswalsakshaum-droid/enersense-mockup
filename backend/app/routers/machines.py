@@ -2,8 +2,10 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from app.models.machines import Machine, MachineDetail
 from app.data.machines import MACHINES_DATA
-from app.services.scoring import calculate_machine_health_score
-
+from app.services.scoring import (
+    calculate_machine_health_score,
+    get_machine_status,
+)
 router = APIRouter(prefix="/machines", tags=["Machines"])
 
 @router.get("", response_model=List[Machine])
@@ -18,7 +20,7 @@ async def get_machines():
             temperature_c=m["temperature_c"],
             machine_type=m["type"],
         )
-
+        calculated_status = get_machine_status(calculated_score)
         machines.append(
             Machine(
                 id=m["id"],
@@ -26,7 +28,7 @@ async def get_machines():
                 type=m["type"],
                 line=m["line"],
                 score=calculated_score,
-                status=m["status"],
+                status=calculated_status,
                 maintenance=m["maintenance"],
                 reading=m["reading"],
                 power_kw=m["power_kw"],

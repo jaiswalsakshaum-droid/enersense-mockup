@@ -45,3 +45,12 @@ def calculate_machine_health_score(
         score -= min(20.0, (temp_diff - 40.0) * 0.4)
 
     return max(10, min(100, int(round(score))))
+def get_machine_status(score: int) -> str:
+    """Convert a health score into an operational status."""
+
+    if score >= 90:
+        return "Normal"
+    elif score >= 70:
+        return "Warning"
+    else:
+        return "Critical"
