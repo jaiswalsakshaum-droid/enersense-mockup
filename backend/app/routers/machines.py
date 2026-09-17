@@ -2,31 +2,40 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from app.models.machines import Machine, MachineDetail
 from app.data.machines import MACHINES_DATA
+from app.services.scoring import calculate_machine_health_score
 
 router = APIRouter(prefix="/machines", tags=["Machines"])
 
-
 @router.get("", response_model=List[Machine])
 async def get_machines():
-    """
-    Retrieve all monitored plant machines with their health score, status, and current reading.
-    """
-    return [
-        Machine(
-            id=m["id"],
-            name=m["name"],
-            type=m["type"],
-            line=m["line"],
-            score=m["score"],
-            status=m["status"],
-            maintenance=m["maintenance"],
-            reading=m["reading"],
+    machines = []
+
+    for m in MACHINES_DATA:
+        calculated_score = calculate_machine_health_score(
             power_kw=m["power_kw"],
-            temperature_c=m["temperature_c"],
+            baseline_kw=m["baseline_power_kw"],
             vibration_mms=m["vibration_mms"],
+            temperature_c=m["temperature_c"],
+            machine_type=m["type"],
         )
-        for m in MACHINES_DATA
-    ]
+
+        machines.append(
+            Machine(
+                id=m["id"],
+                name=m["name"],
+                type=m["type"],
+                line=m["line"],
+                score=calculated_score,
+                status=m["status"],
+                maintenance=m["maintenance"],
+                reading=m["reading"],
+                power_kw=m["power_kw"],
+                temperature_c=m["temperature_c"],
+                vibration_mms=m["vibration_mms"],
+            )
+        )
+
+    return machines
 
 
 @router.get("/{machine_id}", response_model=MachineDetail)

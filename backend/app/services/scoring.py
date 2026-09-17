@@ -6,18 +6,26 @@ vibration limits, thermal anomalies, and operating stability.
 
 from typing import Dict, Any
 
+EXPECTED_TEMPERATURES = {
+    "Melting furnace": 650.0,
+    "Rotary screw compressor": 80.0,
+    "CNC turning centre": 45.0,
+    "Baghouse filter": 50.0,
+    "Induced draft": 38.0,
+}
 
 def calculate_machine_health_score(
     power_kw: float,
     baseline_kw: float,
     vibration_mms: float,
     temperature_c: float,
-    expected_temp_c: float = 650.0,
+    machine_type: str,
 ) -> int:
     """
     Computes 0-100 machine health score.
     100 = optimal operating conditions.
     """
+    expected_temp_c = EXPECTED_TEMPERATURES.get(machine_type, 50.0)
     score = 100.0
 
     # Power draw penalty (if >10% over baseline)
