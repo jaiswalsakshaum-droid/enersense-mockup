@@ -1,0 +1,2 @@
+machine_id,product_id,load_percent,speed_percent,ambient_temperature_c,machine_temperature_c,maintenance_age_days,cycle_time_sec,shift,predicted_energy_kwh,predicted_production_units,predicted_defect_rate,energy_per_unit,predicted_energy_cost_inr
+HEAT_01,P001,70,100,28,65.8,30,45,Morning,50.212443884102505,509.0106677220486,0.0068754678349033,0.09864713466382911,426.8057730148713

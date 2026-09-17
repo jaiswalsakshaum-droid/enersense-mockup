@@ -47,3 +47,16 @@ __pycache__/
 *.njsproj
 *.sln
 *.sw?
+
+
+# ML trained model binaries
+ml-engine/trained_models/*.joblib
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+ml-engine/venv/
+.env
