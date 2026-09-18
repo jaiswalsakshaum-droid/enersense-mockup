@@ -43,9 +43,29 @@ async def get_machines():
 @router.get("/{machine_id}", response_model=MachineDetail)
 async def get_machine_detail(machine_id: str):
     """
-    Retrieve single machine telemetry details, 24h trend values, recent readings, and service logs.
+    Retrieve single machine telemetry details, 24h trend values,
+    recent readings, and service logs.
     """
     machine = next((m for m in MACHINES_DATA if m["id"] == machine_id), None)
+
     if not machine:
-        raise HTTPException(status_code=404, detail=f"Machine '{machine_id}' not found")
-    return MachineDetail(**machine)
+        raise HTTPException(
+            status_code=404,
+            detail=f"Machine '{machine_id}' not found"
+        )
+
+    calculated_score = calculate_machine_health_score(
+        power_kw=machine["power_kw"],
+        baseline_kw=machine["baseline_power_kw"],
+        vibration_mms=machine["vibration_mms"],
+        temperature_c=machine["temperature_c"],
+        machine_type=machine["type"],
+    )
+
+    calculated_status = get_machine_status(calculated_score)
+
+    machine_detail = machine.copy()
+    machine_detail["score"] = calculated_score
+    machine_detail["status"] = calculated_status
+
+    return MachineDetail(**machine_detail)
