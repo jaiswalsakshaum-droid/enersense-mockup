@@ -15,19 +15,21 @@ class PowerHealthFactor(BaseModel):
     baseline: float
     deviation_pct: float
     status: str
+    penalty: float
 
 
 class VibrationHealthFactor(BaseModel):
     value: float
     status: str
-
+    penalty: float
 
 class TemperatureHealthFactor(BaseModel):
     value: float
     expected: float
     deviation: float
     status: str
-
+    penalty: float
+    
 class HealthFactors(BaseModel):
     power: PowerHealthFactor
     vibration: VibrationHealthFactor
