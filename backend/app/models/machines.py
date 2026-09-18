@@ -9,6 +9,30 @@ class MachineReading(BaseModel):
     temperature_c: float
     vibration_mms: float
 
+
+class PowerHealthFactor(BaseModel):
+    value: float
+    baseline: float
+    deviation_pct: float
+    status: str
+
+
+class VibrationHealthFactor(BaseModel):
+    value: float
+    status: str
+
+
+class TemperatureHealthFactor(BaseModel):
+    value: float
+    expected: float
+    deviation: float
+    status: str
+
+class HealthFactors(BaseModel):
+    power: PowerHealthFactor
+    vibration: VibrationHealthFactor
+    temperature: TemperatureHealthFactor
+
 class MaintenanceRecord(BaseModel):
     date: str
     title: str
@@ -32,6 +56,7 @@ class MachineDetail(Machine):
     baseline_power_kw: float
     peak_power_kw: float
     avg_24h_power_kw: float
+    health_factors: HealthFactors
     recent_readings: List[MachineReading] = Field(default_factory=list)
     history_readings_24h: List[float] = Field(default_factory=list)
     maintenance_history: List[MaintenanceRecord] = Field(default_factory=list)
