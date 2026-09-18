@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 
+
 app = FastAPI(
     title="EnnerSense",
     description="AI-powered production, energy, and carbon optimization platform",
     version="0.1.0",
 )
+
 
 
 @app.get("/")
