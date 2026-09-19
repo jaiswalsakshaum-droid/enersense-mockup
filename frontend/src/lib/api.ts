@@ -35,6 +35,35 @@ export interface MaintenanceRecord {
   active?: boolean;
 }
 
+export interface PowerHealthFactor {
+  value: number;
+  baseline: number;
+  deviation_pct: number;
+  status: string;
+  penalty: number;
+}
+
+export interface VibrationHealthFactor {
+  value: number;
+  status: string;
+  penalty: number;
+}
+
+export interface TemperatureHealthFactor {
+  value: number;
+  expected: number;
+  deviation: number;
+  status: string;
+  penalty: number;
+}
+
+export interface HealthFactors {
+  power: PowerHealthFactor;
+  vibration: VibrationHealthFactor;
+  temperature: TemperatureHealthFactor;
+}
+
+
 export interface MachineDetail extends Machine {
   baseline_power_kw: number;
   peak_power_kw: number;
@@ -42,6 +71,7 @@ export interface MachineDetail extends Machine {
   recent_readings: MachineReading[];
   history_readings_24h: number[];
   maintenance_history: MaintenanceRecord[];
+  health_factors: HealthFactors;
 }
 
 export interface PeerBenchmark {
