@@ -1,3 +1,4 @@
+from app.services.machine_health import get_machine_health
 from fastapi import APIRouter, HTTPException
 from typing import List
 from app.models.machines import Machine, MachineDetail
@@ -40,6 +41,21 @@ async def get_machines():
 
     return machines
 
+@router.get("/{machine_id}/health")
+async def get_machine_health_endpoint(machine_id: str):
+    """
+    Retrieve the latest database-backed telemetry and calculated
+    health information for a machine.
+    """
+    health = get_machine_health(machine_id)
+
+    if health is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Machine '{machine_id}' not found"
+        )
+
+    return health
 
 @router.get("/{machine_id}", response_model=MachineDetail)
 async def get_machine_detail(machine_id: str):

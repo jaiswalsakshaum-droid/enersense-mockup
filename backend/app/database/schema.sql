@@ -22,6 +22,15 @@ CREATE TABLE IF NOT EXISTS machines (
     status VARCHAR(30) DEFAULT 'AVAILABLE',
     FOREIGN KEY (factory_id) REFERENCES factories(factory_id)
 );
+CREATE TABLE IF NOT EXISTS machine_telemetry (
+    telemetry_id SERIAL PRIMARY KEY,
+    machine_id VARCHAR(30) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    power_kw NUMERIC(10,2) NOT NULL,
+    temperature_c NUMERIC(10,2) NOT NULL,
+    vibration_mms NUMERIC(10,2) NOT NULL,
+    FOREIGN KEY (machine_id) REFERENCES machines(machine_id)
+);
 
 CREATE TABLE IF NOT EXISTS products (
     product_id VARCHAR(30) PRIMARY KEY,
