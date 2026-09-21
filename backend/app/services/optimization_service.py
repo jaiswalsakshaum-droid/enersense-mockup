@@ -137,8 +137,13 @@ def optimize_order(order_id: str):
             # 4. Start simulation
             start_time = datetime.now()
 
-            scenarios = []
 
+            tariff, carbon_factor = get_current_tariff(
+                       cur,
+                       factory_id,
+                    start_time
+            )
+            scenarios = []
             # We currently optimize using the first two healthy capable machines.
             selected_machines = healthy_machines[:2]
 
@@ -166,12 +171,6 @@ def optimize_order(order_id: str):
                 )
 
                 energy = quantity * energy_per_unit
-
-                tariff, carbon_factor = get_current_tariff(
-                      cur,
-                      factory_id,
-                      start_time
-                )
 
                 cost = energy * tariff
                 carbon = energy * carbon_factor
@@ -286,11 +285,7 @@ def optimize_order(order_id: str):
                         100 -
                         (defects / quantity * 100)
                     )
-                    tariff, carbon_factor = get_current_tariff(
-                            cur,
-                            factory_id,
-                            start_time
-                    )
+                
 
                     cost = energy * tariff
                     carbon = energy * carbon_factor
@@ -415,7 +410,11 @@ def optimize_order(order_id: str):
                 "order_id": order_id,
                 "quantity": quantity,
                 "deadline": deadline.isoformat(),
-                "minimum_quality": float(minimum_quality),
+                "minimum_quality": float(minimum_quality), 
+                "energy_pricing": {
+                "price_per_kwh": tariff,
+                "carbon_factor_kg_per_kwh": carbon_factor,
+},
                 "total_scenarios_tested": len(scenarios),
                 "critical_machines": critical_machines,
                 "eligible_machines": [
