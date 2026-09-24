@@ -2,7 +2,14 @@ from datetime import datetime, timedelta
 
 from app.database.connection import get_connection
 from app.services.machine_health import get_machine_health
-
+from app.services.production_calculations import (
+    calculate_production_duration,
+    calculate_energy,
+    calculate_energy_cost,
+    calculate_carbon,
+    calculate_quality,
+    check_constraints,
+)
 
 def get_current_tariff(cur, factory_id: str, timestamp: datetime):
     current_time = timestamp.time()
@@ -139,9 +146,9 @@ def optimize_order(order_id: str):
 
 
             tariff, carbon_factor = get_current_tariff(
-                       cur,
-                       factory_id,
-                    start_time
+                cur,
+                factory_id,
+                start_time
             )
             scenarios = []
             # We currently optimize using the first two healthy capable machines.
@@ -163,34 +170,48 @@ def optimize_order(order_id: str):
                 health_score = machine[5]
                 health_status = machine[6]
 
-                duration = quantity / capacity
+                duration = calculate_production_duration(
+                    quantity,
+                    capacity,
+                )
 
                 completion = (
                     start_time +
                     timedelta(hours=duration)
                 )
 
-                energy = quantity * energy_per_unit
-
-                cost = energy * tariff
-                carbon = energy * carbon_factor
-
-                quality = 100 - (defect_rate * 100)
-
-                deadline_met = completion <= deadline
-
-                quality_met = quality >= float(minimum_quality)
-
-                carbon_budget_met = (
-                    carbon_budget is None
-                    or carbon <= float(carbon_budget)
+                energy = calculate_energy(
+                    quantity,
+                    energy_per_unit,
                 )
 
-                feasible = (
-                    deadline_met
-                    and quality_met
-                    and carbon_budget_met
+                cost = calculate_energy_cost(
+                    energy,
+                    tariff,
                 )
+
+                carbon = calculate_carbon(
+                    energy,
+                    carbon_factor,
+                )
+
+                quality = calculate_quality(
+                    defect_rate,
+                )
+
+                constraint_result = check_constraints(
+                    completion_time=completion,
+                    deadline=deadline,
+                    quality=quality,
+                    minimum_quality=minimum_quality,
+                    carbon=carbon,
+                    carbon_budget=carbon_budget,
+                )
+
+                deadline_met = constraint_result["deadline_met"]
+                quality_met = constraint_result["quality_met"]
+                carbon_budget_met = constraint_result["carbon_budget_met"]
+                feasible = constraint_result["feasible"]
 
                 scenarios.append({
                     "allocation": {
@@ -270,45 +291,48 @@ def optimize_order(order_id: str):
                         start_time +
                         timedelta(hours=duration)
                     )
-
                     energy = (
-                        qty1 * m1_energy +
-                        qty2 * m2_energy
+                        calculate_energy(qty1, m1_energy)
+                        + calculate_energy(qty2, m2_energy)
                     )
 
                     defects = (
-                        qty1 * m1_defect +
-                        qty2 * m2_defect
+                        qty1 * m1_defect
+                        + qty2 * m2_defect
                     )
 
                     quality = (
                         100 -
                         (defects / quantity * 100)
                     )
-                
 
-                    cost = energy * tariff
-                    carbon = energy * carbon_factor
+                    cost = calculate_energy_cost(
+                        energy,
+                        tariff,
+                    )
+
+                    carbon = calculate_carbon(
+                        energy,
+                        carbon_factor,
+                    )
+
+                    constraint_result = check_constraints(
+                        completion_time=completion,
+                        deadline=deadline,
+                        quality=quality,
+                        minimum_quality=minimum_quality,
+                        carbon=carbon,
+                        carbon_budget=carbon_budget,
+                    )
+
+                    deadline_met = constraint_result["deadline_met"]
+                    quality_met = constraint_result["quality_met"]
+                    carbon_budget_met = constraint_result["carbon_budget_met"]
+                    feasible = constraint_result["feasible"]
                     
 
-                    deadline_met = (
-                        completion <= deadline
-                    )
 
-                    quality_met = (
-                        quality >= float(minimum_quality)
-                    )
-
-                    carbon_budget_met = (
-                        carbon_budget is None
-                        or carbon <= float(carbon_budget)
-                    )
-
-                    feasible = (
-                        deadline_met
-                        and quality_met
-                        and carbon_budget_met
-                    )
+                    
 
                     scenarios.append({
                         "allocation": {
@@ -412,9 +436,9 @@ def optimize_order(order_id: str):
                 "deadline": deadline.isoformat(),
                 "minimum_quality": float(minimum_quality), 
                 "energy_pricing": {
-                "price_per_kwh": tariff,
-                "carbon_factor_kg_per_kwh": carbon_factor,
-},
+                    "price_per_kwh": tariff,
+                    "carbon_factor_kg_per_kwh": carbon_factor,
+                },
                 "total_scenarios_tested": len(scenarios),
                 "critical_machines": critical_machines,
                 "eligible_machines": [

@@ -1,7 +1,15 @@
 from datetime import datetime, timedelta
 from app.database.connection import get_connection
 from app.services.machine_health import get_machine_health
-
+from app.services.production_calculations import (
+    calculate_production_duration,
+    calculate_energy,
+    calculate_energy_cost,
+    calculate_carbon,
+    calculate_expected_defects,
+    calculate_effective_quality,
+    check_constraints,
+)
 def get_tariff(cur, factory_id, time_value):
     cur.execute("""
         SELECT
@@ -149,69 +157,72 @@ def simulate_order(order_id: str):
                 health_score = int(health_score)
 
                 # Production duration
-                duration_hours = quantity / capacity_per_hour
-
-                start_time = datetime.now()
-                completion_time = start_time + timedelta(
-                    hours=duration_hours
+                duration_hours = calculate_production_duration(
+                    quantity,
+                    capacity_per_hour,
                 )
 
-                # Energy
-                total_energy = quantity * energy_per_unit
+                start_time = datetime.now()
 
-                # Tariff
+                completion_time = (
+                    start_time +
+                    timedelta(hours=duration_hours)
+                )
+
+                total_energy = calculate_energy(
+                    quantity,
+                    energy_per_unit,
+                )
+
                 tariff, carbon_factor = get_tariff(
                     cur,
                     factory_id,
-                    start_time.time()
+                    start_time.time(),
                 )
 
-                # Cost
-                total_cost = total_energy * tariff
-
-                # Carbon
-                total_carbon = total_energy * carbon_factor
-
-                # Expected defects
-                expected_defects = round(
-                    quantity * defect_rate
+                total_cost = calculate_energy_cost(
+                    total_energy,
+                    tariff,
                 )
 
-                # Effective quality
-                effective_quality = (
-                    (quantity - expected_defects)
-                    / quantity
-                ) * 100
-
-                # Deadline check
-                deadline_met = completion_time <= deadline
-
-                # Quality check
-                quality_met = (
-                    effective_quality >= minimum_quality
+                total_carbon = calculate_carbon(
+                    total_energy,
+                    carbon_factor,
                 )
 
-                # Carbon check
-                carbon_met = (
-                    carbon_budget is None
-                    or total_carbon <= float(carbon_budget)
+                expected_defects = calculate_expected_defects(
+                    quantity,
+                    defect_rate,
                 )
 
-                feasible = (
-                    deadline_met
-                    and quality_met
-                    and carbon_met
+                effective_quality = calculate_effective_quality(
+                    quantity,
+                    expected_defects,
                 )
+
+                constraint_result = check_constraints(
+                    completion_time=completion_time,
+                    deadline=deadline,
+                    quality=effective_quality,
+                    minimum_quality=minimum_quality,
+                    carbon=total_carbon,
+                    carbon_budget=carbon_budget,
+                )
+
+                deadline_met = constraint_result["deadline_met"]
+                quality_met = constraint_result["quality_met"]
+                carbon_met = constraint_result["carbon_budget_met"]
+                feasible = constraint_result["feasible"]
 
                 scenarios.append({
                     "machine_health": {
-    "score": health_score,
-    "status": health_status,
-},
-"energy_pricing": {
-    "price_per_kwh": tariff,
-    "carbon_factor_kg_per_kwh": carbon_factor,
-},
+                        "score": health_score,
+                        "status": health_status,
+                    },
+                    "energy_pricing": {
+                        "price_per_kwh": tariff,
+                        "carbon_factor_kg_per_kwh": carbon_factor,
+                    },
                     "machine_id": machine_id,
                     "machine_name": machine_name,
                     "quantity": quantity,
@@ -260,27 +271,27 @@ def simulate_order(order_id: str):
                 "deadline": deadline.isoformat(),
                 "minimum_quality": float(minimum_quality),
                 "energy_pricing": {
-    "price_per_kwh": (
-        scenarios[0]["energy_pricing"]["price_per_kwh"]
-        if scenarios
-        else 7.20
-    ),
-    "carbon_factor_kg_per_kwh": (
-        scenarios[0]["energy_pricing"]["carbon_factor_kg_per_kwh"]
-        if scenarios
-        else 0.70
-    ),
-},
-"critical_machines": critical_machines,
-"eligible_machines": [
-    {
-        "machine_id": machine[0],
-        "name": machine[1],
-        "health_score": machine[6],
-        "health_status": machine[7],
-    }
-    for machine in eligible_machines
-],
+                    "price_per_kwh": (
+                        scenarios[0]["energy_pricing"]["price_per_kwh"]
+                        if scenarios
+                        else 7.20
+                    ),
+                    "carbon_factor_kg_per_kwh": (
+                        scenarios[0]["energy_pricing"]["carbon_factor_kg_per_kwh"]
+                        if scenarios
+                        else 0.70
+                    ),
+                },
+                "critical_machines": critical_machines,
+                "eligible_machines": [
+                    {
+                        "machine_id": machine[0],
+                        "name": machine[1],
+                        "health_score": machine[6],
+                        "health_status": machine[7],
+                    }
+                    for machine in eligible_machines
+                ],
                 "carbon_budget_kg": (
                     float(carbon_budget)
                     if carbon_budget is not None
