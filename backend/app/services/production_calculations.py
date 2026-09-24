@@ -55,3 +55,14 @@ def check_constraints(
         "carbon_budget_met": carbon_budget_met,
         "feasible": feasible,
     }
+import math
+
+
+def calculate_batch_production_duration(
+    quantity,
+    processing_time_min,
+    max_batch_size,
+):
+    batches = math.ceil(quantity / max_batch_size)
+    total_minutes = batches * processing_time_min
+    return total_minutes / 60

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from app.database.connection import get_connection
 from app.services.machine_health import get_machine_health
 from app.services.production_calculations import (
-    calculate_production_duration,
+    calculate_batch_production_duration,
     calculate_energy,
     calculate_energy_cost,
     calculate_carbon,
@@ -74,19 +74,21 @@ def optimize_order(order_id: str):
 
             # 2. Find machines capable of producing the product
             cur.execute("""
-                SELECT
-                    m.machine_id,
-                    m.name,
-                    m.capacity_units_per_hour,
-                    c.energy_kwh_per_unit,
-                    c.defect_rate
-                FROM machines m
-                JOIN machine_product_capabilities c
-                    ON m.machine_id = c.machine_id
-                WHERE m.factory_id = %s
-                  AND c.product_id = %s
-                  AND m.status = 'AVAILABLE';
-            """, (factory_id, product_id))
+    SELECT
+        m.machine_id,
+        m.name,
+        m.capacity_units_per_hour,
+        c.energy_kwh_per_unit,
+        c.defect_rate,
+        c.processing_time_min,
+        c.max_batch_size
+    FROM machines m
+    JOIN machine_product_capabilities c
+        ON m.machine_id = c.machine_id
+    WHERE m.factory_id = %s
+      AND c.product_id = %s
+      AND m.status = 'AVAILABLE';
+""", (factory_id, product_id))
 
             machines = cur.fetchall()
 
@@ -167,12 +169,15 @@ def optimize_order(order_id: str):
                 capacity = float(machine[2])
                 energy_per_unit = float(machine[3])
                 defect_rate = float(machine[4])
-                health_score = machine[5]
-                health_status = machine[6]
+                processing_time_min = float(machine[5])
+                max_batch_size = int(machine[6])
+                health_score = machine[7]
+                health_status = machine[8]
 
-                duration = calculate_production_duration(
+                duration = calculate_batch_production_duration(
                     quantity,
-                    capacity,
+                    processing_time_min,
+                    max_batch_size,
                 )
 
                 completion = (
@@ -253,8 +258,10 @@ def optimize_order(order_id: str):
                 m1_capacity = float(m1[2])
                 m1_energy = float(m1[3])
                 m1_defect = float(m1[4])
-                m1_health_score = m1[5]
-                m1_health_status = m1[6]
+                m1_processing_time_min = float(m1[5])
+                m1_max_batch_size = int(m1[6])
+                m1_health_score = m1[7]
+                m1_health_status = m1[8]
 
                 # Machine 2
                 m2_id = m2[0]
@@ -262,8 +269,10 @@ def optimize_order(order_id: str):
                 m2_capacity = float(m2[2])
                 m2_energy = float(m2[3])
                 m2_defect = float(m2[4])
-                m2_health_score = m2[5]
-                m2_health_status = m2[6]
+                m2_processing_time_min = float(m2[5])
+                m2_max_batch_size = int(m2[6])
+                m2_health_score = m2[7]
+                m2_health_status = m2[8]
 
                 # Test allocations every 500 units
                 step = 500
@@ -273,13 +282,21 @@ def optimize_order(order_id: str):
                     qty2 = quantity - qty1
 
                     time1 = (
-                        qty1 / m1_capacity
+                        calculate_batch_production_duration(
+                            qty1,
+                            m1_processing_time_min,
+                            m1_max_batch_size,
+                        )
                         if qty1 > 0
                         else 0
                     )
 
                     time2 = (
-                        qty2 / m2_capacity
+                        calculate_batch_production_duration(
+                            qty2,
+                            m2_processing_time_min,
+                            m2_max_batch_size,
+                        )
                         if qty2 > 0
                         else 0
                     )
@@ -445,8 +462,8 @@ def optimize_order(order_id: str):
                     {
                         "machine_id": machine[0],
                         "name": machine[1],
-                        "health_score": machine[5],
-                        "health_status": machine[6],
+                        "health_score": machine[7],
+                        "health_status": machine[8],
                     }
                     for machine in selected_machines
                 ],
