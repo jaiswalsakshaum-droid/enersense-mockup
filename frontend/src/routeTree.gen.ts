@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuditRouteImport } from './routes/audit'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ProcessTwinRouteImport } from './routes/process-twin'
 import { Route as SimulateRouteImport } from './routes/simulate'
 import { Route as MachinesIndexRouteImport } from './routes/machines/index'
 import { Route as MachinesIdRouteImport } from './routes/machines/$id'
@@ -37,6 +38,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProcessTwinRoute = ProcessTwinRouteImport.update({
+  id: '/process-twin',
+  path: '/process-twin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimulateRoute = SimulateRouteImport.update({
   id: '/simulate',
   path: '/simulate',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/dashboard': typeof DashboardRoute
+  '/process-twin': typeof ProcessTwinRoute
   '/simulate': typeof SimulateRoute
   '/machines/$id': typeof MachinesIdRoute
   '/machines/': typeof MachinesIndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/dashboard': typeof DashboardRoute
+  '/process-twin': typeof ProcessTwinRoute
   '/simulate': typeof SimulateRoute
   '/machines/$id': typeof MachinesIdRoute
   '/machines': typeof MachinesIndexRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
   '/dashboard': typeof DashboardRoute
+  '/process-twin': typeof ProcessTwinRoute
   '/simulate': typeof SimulateRoute
   '/machines/$id': typeof MachinesIdRoute
   '/machines/': typeof MachinesIndexRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/dashboard'
+    | '/process-twin'
     | '/simulate'
     | '/machines/$id'
     | '/machines/'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/dashboard'
+    | '/process-twin'
     | '/simulate'
     | '/machines/$id'
     | '/machines'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/audit'
     | '/dashboard'
+    | '/process-twin'
     | '/simulate'
     | '/machines/$id'
     | '/machines/'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   AuditRoute: typeof AuditRoute
   DashboardRoute: typeof DashboardRoute
+  ProcessTwinRoute: typeof ProcessTwinRoute
   SimulateRoute: typeof SimulateRoute
   MachinesIdRoute: typeof MachinesIdRoute
   MachinesIndexRoute: typeof MachinesIndexRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/process-twin': {
+      id: '/process-twin'
+      path: '/process-twin'
+      fullPath: '/process-twin'
+      preLoaderRoute: typeof ProcessTwinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/simulate': {
       id: '/simulate'
       path: '/simulate'
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   AuditRoute: AuditRoute,
   DashboardRoute: DashboardRoute,
+  ProcessTwinRoute: ProcessTwinRoute,
   SimulateRoute: SimulateRoute,
   MachinesIdRoute: MachinesIdRoute,
   MachinesIndexRoute: MachinesIndexRoute,
