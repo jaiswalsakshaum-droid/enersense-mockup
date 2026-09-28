@@ -6,6 +6,8 @@ from app.routers.process_twin import router as process_twin_router
 from app.routers.optimization import router as optimization_router
 from app.routers.plans import router as plans_router
 from app.routers.plans_get import router as plans_get_router
+from app.routers.ml import router as ml_router
+
 from app.routers import (
     machines_router,
     dashboard_router,
@@ -53,6 +55,7 @@ app.include_router(process_twin_router)
 app.include_router(optimization_router)
 app.include_router(plans_router)
 app.include_router(plans_get_router)
+app.include_router(ml_router)
 
 @app.get("/")
 async def root():

@@ -1,12 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Factory, Leaf, Zap, IndianRupee, CheckCircle2, XCircle } from "lucide-react";
+import { createProductionOrder, generateProductionPlan } from "@/lib/api";
 
-import {
-  AppShell,
-  PageHeading,
-  SectionLabel,
-} from "@/components/enersense";
+import { AppShell, PageHeading, SectionLabel } from "@/components/enersense";
 
 import { Button } from "@/components/ui/button";
 
@@ -32,55 +29,22 @@ function ProcessTwin() {
     try {
       const orderId = `ORD-${Date.now()}`;
 
-      const orderResponse = await fetch(
-        "http://127.0.0.1:4000/api/orders/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            order_id: orderId,
-            factory_id: "FAC-001",
-            product_id: "PROD-001",
-            quantity,
-            deadline,
-            minimum_quality: quality,
-            carbon_budget_kg: carbonBudget,
-            priority: "HIGH",
-          }),
-        }
-      );
+      const order = await createProductionOrder({
+        order_id: orderId,
+        factory_id: "FAC-001",
+        product_id: "PROD-001",
+        quantity,
+        deadline,
+        minimum_quality: quality,
+        carbon_budget_kg: carbonBudget,
+        priority: "HIGH",
+      });
 
-      if (!orderResponse.ok) {
-        const message = await orderResponse.text();
-        throw new Error(message || "Could not create order");
-      }
-
-      const order = await orderResponse.json();
-
-      const planResponse = await fetch(
-        `http://127.0.0.1:4000/api/plans/generate/${order.order_id}`,
-        {
-          method: "POST",
-        }
-      );
-
-      const plan = await planResponse.json();
-
-      if (!planResponse.ok) {
-        throw new Error(
-          plan.detail || "Could not generate production plan"
-        );
-      }
+      const plan = await generateProductionPlan(order.order_id);
 
       setResult(plan);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong"
-      );
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -91,7 +55,6 @@ function ProcessTwin() {
   return (
     <AppShell>
       <div className="rise-in">
-
         <PageHeading
           eyebrow="PRODUCTION INTELLIGENCE"
           title="ProcessTwin AI"
@@ -100,10 +63,8 @@ function ProcessTwin() {
 
         {/* Main configuration */}
         <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
-
           {/* Order form */}
           <section className="glass-panel rounded-xl border border-border p-6">
-
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-soft text-amber">
                 <Factory className="h-5 w-5" />
@@ -123,36 +84,25 @@ function ProcessTwin() {
             </div>
 
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
-
               <div>
-                <label className="mb-2 block text-xs font-medium text-foreground">
-                  Quantity
-                </label>
+                <label className="mb-2 block text-xs font-medium text-foreground">Quantity</label>
 
                 <input
                   type="number"
                   value={quantity}
-                  onChange={(e) =>
-                    setQuantity(Number(e.target.value))
-                  }
+                  onChange={(e) => setQuantity(Number(e.target.value))}
                   className="h-11 w-full rounded-lg border border-input bg-background px-3.5 text-sm text-foreground outline-none focus:border-amber focus:ring-1 focus:ring-amber"
                 />
-                <p className="mt-1.5 text-[10px] text-muted-foreground">
-                  Units to manufacture
-                </p>
+                <p className="mt-1.5 text-[10px] text-muted-foreground">Units to manufacture</p>
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-medium text-foreground">
-                  Deadline
-                </label>
+                <label className="mb-2 block text-xs font-medium text-foreground">Deadline</label>
 
                 <input
                   type="datetime-local"
                   value={deadline}
-                  onChange={(e) =>
-                    setDeadline(e.target.value)
-                  }
+                  onChange={(e) => setDeadline(e.target.value)}
                   className="h-11 w-full rounded-lg border border-input bg-background px-3.5 text-sm text-foreground outline-none focus:border-amber focus:ring-1 focus:ring-amber"
                 />
               </div>
@@ -168,15 +118,11 @@ function ProcessTwin() {
                     min="0"
                     max="100"
                     value={quality}
-                    onChange={(e) =>
-                      setQuality(Number(e.target.value))
-                    }
+                    onChange={(e) => setQuality(Number(e.target.value))}
                     className="h-11 w-full rounded-lg border border-input bg-background px-3.5 text-sm text-foreground outline-none focus:border-amber focus:ring-1 focus:ring-amber"
                   />
 
-                  <span className="absolute right-3 top-3 text-xs text-muted-foreground">
-                    %
-                  </span>
+                  <span className="absolute right-3 top-3 text-xs text-muted-foreground">%</span>
                 </div>
               </div>
 
@@ -189,18 +135,13 @@ function ProcessTwin() {
                   <input
                     type="number"
                     value={carbonBudget}
-                    onChange={(e) =>
-                      setCarbonBudget(Number(e.target.value))
-                    }
+                    onChange={(e) => setCarbonBudget(Number(e.target.value))}
                     className="h-11 w-full rounded-lg border border-input bg-background px-3.5 text-sm text-foreground outline-none focus:border-amber focus:ring-1 focus:ring-amber"
                   />
 
-                  <span className="absolute right-3 top-3 text-xs text-muted-foreground">
-                    kg
-                  </span>
+                  <span className="absolute right-3 top-3 text-xs text-muted-foreground">kg</span>
                 </div>
               </div>
-
             </div>
 
             <div className="mt-7 border-t border-border pt-5">
@@ -209,9 +150,7 @@ function ProcessTwin() {
                 disabled={loading}
                 className="h-11 bg-amber px-6 text-primary-foreground hover:bg-amber/90"
               >
-                {loading
-                  ? "Optimizing production..."
-                  : "Generate Optimized Plan"}
+                {loading ? "Optimizing production..." : "Generate Optimized Plan"}
               </Button>
 
               <span className="ml-4 text-xs text-muted-foreground">
@@ -224,12 +163,10 @@ function ProcessTwin() {
                 {error}
               </div>
             )}
-
           </section>
 
           {/* Decision explanation */}
           <section className="rounded-xl border border-teal/30 bg-panel-raised p-6">
-
             <SectionLabel>Decision engine</SectionLabel>
 
             <h2 className="mt-2 font-display text-lg font-semibold text-foreground">
@@ -237,7 +174,6 @@ function ProcessTwin() {
             </h2>
 
             <div className="mt-6 space-y-5">
-
               <DecisionItem
                 icon={Zap}
                 title="Energy"
@@ -261,16 +197,13 @@ function ProcessTwin() {
                 title="Capacity"
                 description="Distribute production according to machine capacity."
               />
-
             </div>
-
           </section>
         </div>
 
         {/* Results */}
         {bestPlan && (
           <div className="mt-8">
-
             <PageHeading
               eyebrow="OPTIMIZATION RESULT"
               title="Recommended production plan"
@@ -278,13 +211,7 @@ function ProcessTwin() {
             />
 
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-
-              <ResultCard
-                icon={Zap}
-                label="Energy"
-                value={`${bestPlan.energy_kwh}`}
-                unit="kWh"
-              />
+              <ResultCard icon={Zap} label="Energy" value={`${bestPlan.energy_kwh}`} unit="kWh" />
 
               <ResultCard
                 icon={IndianRupee}
@@ -293,12 +220,7 @@ function ProcessTwin() {
                 unit=""
               />
 
-              <ResultCard
-                icon={Leaf}
-                label="Carbon"
-                value={`${bestPlan.carbon_kg}`}
-                unit="kg"
-              />
+              <ResultCard icon={Leaf} label="Carbon" value={`${bestPlan.carbon_kg}`} unit="kg" />
 
               <ResultCard
                 icon={Factory}
@@ -306,12 +228,10 @@ function ProcessTwin() {
                 value={`${bestPlan.quality_percent}`}
                 unit="%"
               />
-
             </div>
 
             {/* Allocation */}
             <section className="glass-panel mt-5 rounded-xl border border-border p-6">
-
               <SectionLabel>Machine allocation</SectionLabel>
 
               <h2 className="mt-2 font-display text-lg font-semibold text-foreground">
@@ -319,54 +239,36 @@ function ProcessTwin() {
               </h2>
 
               <div className="mt-5 space-y-3">
+                {Object.entries(bestPlan.allocation).map(([machine, units]) => (
+                  <div
+                    key={machine}
+                    className="flex items-center justify-between rounded-lg border border-border bg-panel-raised p-4"
+                  >
+                    <div>
+                      <div className="text-sm font-medium text-foreground">{machine}</div>
 
-                {Object.entries(bestPlan.allocation).map(
-                  ([machine, units]) => (
-                    <div
-                      key={machine}
-                      className="flex items-center justify-between rounded-lg border border-border bg-panel-raised p-4"
-                    >
-                      <div>
-                        <div className="text-sm font-medium text-foreground">
-                          {machine}
-                        </div>
-
-                        <div className="mt-1 text-[11px] text-muted-foreground">
-                          Assigned production quantity
-                        </div>
-                      </div>
-
-                      <div className="font-display text-lg font-semibold text-amber">
-                        {String(units)} units
+                      <div className="mt-1 text-[11px] text-muted-foreground">
+                        Assigned production quantity
                       </div>
                     </div>
-                  )
-                )}
 
+                    <div className="font-display text-lg font-semibold text-amber">
+                      {String(units)} units
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {/* Constraint checks */}
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <Constraint label="Deadline" passed={bestPlan.deadline_met} />
 
-                <Constraint
-                  label="Deadline"
-                  passed={bestPlan.deadline_met}
-                />
+                <Constraint label="Quality" passed={bestPlan.quality_met} />
 
-                <Constraint
-                  label="Quality"
-                  passed={bestPlan.quality_met}
-                />
-
-                <Constraint
-                  label="Carbon budget"
-                  passed={bestPlan.carbon_budget_met}
-                />
-
+                <Constraint label="Carbon budget" passed={bestPlan.carbon_budget_met} />
               </div>
 
               <div className="mt-5 rounded-lg border border-border bg-panel p-4">
-
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Expected completion
                 </div>
@@ -376,16 +278,12 @@ function ProcessTwin() {
                 </div>
 
                 <div className="mt-1 text-xs text-muted-foreground">
-                  Estimated production duration:{" "}
-                  {bestPlan.duration_hours} hours
+                  Estimated production duration: {bestPlan.duration_hours} hours
                 </div>
-
               </div>
-
             </section>
           </div>
         )}
-
       </div>
     </AppShell>
   );
@@ -407,13 +305,9 @@ function DecisionItem({
       </div>
 
       <div>
-        <div className="text-sm font-medium text-foreground">
-          {title}
-        </div>
+        <div className="text-sm font-medium text-foreground">{title}</div>
 
-        <div className="mt-1 text-[11px] leading-5 text-muted-foreground">
-          {description}
-        </div>
+        <div className="mt-1 text-[11px] leading-5 text-muted-foreground">{description}</div>
       </div>
     </div>
   );
@@ -432,38 +326,24 @@ function ResultCard({
 }) {
   return (
     <div className="glass-panel rounded-xl border border-border p-5">
-
       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-soft text-teal">
         <Icon className="h-[18px] w-[18px]" />
       </div>
 
-      <div className="mt-5 text-xs font-medium text-muted-foreground">
-        {label}
-      </div>
+      <div className="mt-5 text-xs font-medium text-muted-foreground">{label}</div>
 
       <div className="mt-1 flex items-baseline gap-1.5">
         <span className="font-display text-[27px] font-semibold tracking-tight text-foreground">
           {value}
         </span>
 
-        {unit && (
-          <span className="text-xs text-muted-foreground">
-            {unit}
-          </span>
-        )}
+        {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
       </div>
-
     </div>
   );
 }
 
-function Constraint({
-  label,
-  passed,
-}: {
-  label: string;
-  passed: boolean;
-}) {
+function Constraint({ label, passed }: { label: string; passed: boolean }) {
   return (
     <div
       className={`flex items-center gap-2 rounded-lg border p-3 text-xs ${
@@ -472,11 +352,7 @@ function Constraint({
           : "border-critical/30 bg-critical/10 text-critical"
       }`}
     >
-      {passed ? (
-        <CheckCircle2 className="h-4 w-4" />
-      ) : (
-        <XCircle className="h-4 w-4" />
-      )}
+      {passed ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
 
       <span className="font-medium">
         {label} {passed ? "met" : "not met"}

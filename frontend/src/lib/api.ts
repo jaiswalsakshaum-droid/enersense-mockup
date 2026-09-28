@@ -184,6 +184,50 @@ export interface LiveStreamPayload {
   status: MachineStatus;
 }
 
+// =========================================================
+// ML Intelligence API
+// =========================================================
+
+export interface MLAnalysisRequest {
+  machine_id: string;
+  product_id: string;
+  load_percent: number;
+  speed_percent: number;
+  ambient_temperature_c: number;
+  machine_temperature_c: number;
+  maintenance_age_days: number;
+  cycle_time_sec: number;
+  shift: string;
+}
+
+export interface MLSimulationRequest {
+  machine_id: string;
+  product_id: string;
+  current_load_percent: number;
+  current_speed_percent: number;
+  what_if_load_percent: number;
+  what_if_speed_percent: number;
+  ambient_temperature_c: number;
+  machine_temperature_c: number;
+  maintenance_age_days: number;
+  cycle_time_sec: number;
+  shift: string;
+}
+
+export interface MLCounterfactualRequest {
+  machine_id: string;
+  product_id: string;
+  current_load_percent: number;
+  current_speed_percent: number;
+  what_if_load_percent: number;
+  what_if_speed_percent: number;
+  ambient_temperature_c: number;
+  machine_temperature_c: number;
+  maintenance_age_days: number;
+  cycle_time_sec: number;
+  shift: string;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
   const res = await fetch(url, {
@@ -239,4 +283,75 @@ export async function fetchSchemes(industryType?: string, monthlyConsumption?: n
 
 export function getLiveStreamUrl(machineId: string): string {
   return `${API_BASE}/stream/live?machine_id=${encodeURIComponent(machineId)}`;
+}
+
+
+// =========================================================
+// ML ENDPOINTS
+// =========================================================
+
+export async function runMLAnalysis(
+  data: MLAnalysisRequest
+): Promise<Record<string, any>> {
+  return request<Record<string, any>>("/ml/analyze", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function runMLSimulation(
+  data: MLSimulationRequest
+): Promise<Record<string, any>> {
+  return request<Record<string, any>>("/ml/simulate", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function runMLCounterfactual(
+  data: MLCounterfactualRequest
+): Promise<Record<string, any>> {
+  return request<Record<string, any>>("/ml/counterfactual", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export interface ProductionOrderRequest {
+  order_id: string;
+  factory_id: string;
+  product_id: string;
+  quantity: number;
+  deadline: string;
+  minimum_quality: number;
+  carbon_budget_kg: number;
+  priority: string;
+}
+
+export interface ProductionOrderResponse {
+  order_id: string;
+  factory_id: string;
+  product_id: string;
+  quantity: number;
+  deadline: string;
+  minimum_quality: number;
+  carbon_budget_kg: number;
+  priority: string;
+}
+
+export async function createProductionOrder(
+  data: ProductionOrderRequest
+): Promise<ProductionOrderResponse> {
+  return request<ProductionOrderResponse>("/orders/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function generateProductionPlan(
+  orderId: string
+): Promise<any> {
+  return request<any>(`/plans/generate/${orderId}`, {
+    method: "POST",
+  });
 }
