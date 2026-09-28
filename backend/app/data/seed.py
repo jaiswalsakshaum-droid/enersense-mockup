@@ -111,6 +111,65 @@ def seed_database():
                 """, machine)
 
             # -------------------------
+            # 2A. MACHINE TELEMETRY
+            # -------------------------
+            telemetry = [
+                (
+                    "induction-furnace-01",
+                    182,
+                    684,
+                    2.4
+                ),
+                (
+                    "compressor-02",
+                    68,
+                    82,
+                    3.8
+                ),
+                (
+                    "cnc-lathe-04",
+                    41,
+                    46,
+                    1.6
+                ),
+                (
+                    "dust-collector-01",
+                    29,
+                    54,
+                    5.2
+                ),
+                (
+                    "cooling-tower-01",
+                    36,
+                    38,
+                    1.9
+                )
+            ]
+
+            for machine_id, power, temperature, vibration in telemetry:
+                cur.execute("""
+                    INSERT INTO machine_telemetry
+                    (
+                        machine_id,
+                        power_kw,
+                        temperature_c,
+                        vibration_mms
+                    )
+                    SELECT %s, %s, %s, %s
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM machine_telemetry
+                        WHERE machine_id = %s
+                    );
+                """, (
+                    machine_id,
+                    power,
+                    temperature,
+                    vibration,
+                    machine_id
+                ))
+
+            # -------------------------
             # 3. PRODUCT
             # -------------------------
             cur.execute("""
@@ -152,7 +211,13 @@ def seed_database():
                 )
             ]
 
-            for machine_id, processing_time, energy, defect, batch_size in capabilities:
+            for (
+                machine_id,
+                processing_time,
+                energy,
+                defect,
+                batch_size
+            ) in capabilities:
                 cur.execute("""
                     INSERT INTO machine_product_capabilities
                     (
@@ -202,7 +267,6 @@ def seed_database():
                 ))
 
         conn.commit()
-
         print("Database seeded successfully!")
 
     except Exception as e:

@@ -1,17 +1,27 @@
 from datetime import datetime, timedelta
 from app.database.connection import get_connection
-
-
-def get_tariff(cur, time_value):
+from app.services.machine_health import get_machine_health
+from app.services.production_calculations import (
+    calculate_batch_production_duration,
+    calculate_energy,
+    calculate_energy_cost,
+    calculate_carbon,
+    calculate_expected_defects,
+    calculate_effective_quality,
+    check_constraints,
+)
+def get_tariff(cur, factory_id, time_value):
     cur.execute("""
-        SELECT price_per_kwh, carbon_factor_kg_per_kwh
+        SELECT
+            price_per_kwh,
+            carbon_factor_kg_per_kwh
         FROM energy_tariffs
         WHERE factory_id = %s
-        AND start_time <= %s
-        AND end_time >= %s
+          AND start_time <= %s
+          AND end_time >= %s
         ORDER BY price_per_kwh
         LIMIT 1;
-    """, ("FAC-001", time_value, time_value))
+    """, (factory_id, time_value, time_value))
 
     result = cur.fetchone()
 
@@ -20,7 +30,6 @@ def get_tariff(cur, time_value):
 
     # Fallback tariff
     return 7.20, 0.70
-
 
 def simulate_order(order_id: str):
 
@@ -72,7 +81,9 @@ def simulate_order(order_id: str):
                     m.capacity_units_per_hour,
                     m.quality_score,
                     c.energy_kwh_per_unit,
-                    c.defect_rate
+                    c.defect_rate,
+                    c.processing_time_min,
+                    c.max_batch_size
                 FROM machines m
                 JOIN machine_product_capabilities c
                     ON m.machine_id = c.machine_id
@@ -89,81 +100,134 @@ def simulate_order(order_id: str):
                 }
 
             # --------------------------------
-            # 3. CREATE SIMULATION SCENARIOS
+            # 3. CHECK MACHINE HEALTH
+            # --------------------------------
+            eligible_machines = []
+            critical_machines = []
+
+            for machine in machines:
+                machine_id = machine[0]
+                health = get_machine_health(machine_id)
+
+                # No telemetry means we cannot verify machine health.
+                if health is None:
+                    continue
+
+                health_score = health["health_score"]
+                health_status = health["health_status"]
+
+                if health_status == "Critical":
+                    critical_machines.append({
+                        "machine_id": machine_id,
+                        "name": machine[1],
+                        "health_score": health_score,
+                        "health_status": health_status,
+                    })
+                    continue
+
+                eligible_machines.append(
+                    machine + (health_score, health_status)
+                )
+
+            if not eligible_machines:
+                return {
+                    "error": "No healthy machines available for simulation",
+                    "critical_machines": critical_machines,
+                }
+
+            # --------------------------------
+            # 4. CREATE SIMULATION SCENARIOS
             # --------------------------------
             scenarios = []
 
-            for machine in machines:
-
+            for machine in eligible_machines:
                 (
                     machine_id,
                     machine_name,
                     capacity_per_hour,
                     quality_score,
                     energy_per_unit,
-                    defect_rate
+                    defect_rate,
+                    processing_time_min,
+                    max_batch_size,
+                    health_score,
+                    health_status,
                 ) = machine
-
                 capacity_per_hour = float(capacity_per_hour)
                 quality_score = float(quality_score)
                 energy_per_unit = float(energy_per_unit)
                 defect_rate = float(defect_rate)
+                health_score = int(health_score)
+                processing_time_min = float(processing_time_min)
+                max_batch_size = int(max_batch_size)
 
                 # Production duration
-                duration_hours = quantity / capacity_per_hour
-
+                duration_hours = calculate_batch_production_duration(
+                    quantity,
+                    processing_time_min,
+                    max_batch_size,
+                )
                 start_time = datetime.now()
-                completion_time = start_time + timedelta(
-                    hours=duration_hours
+
+                completion_time = (
+                    start_time +
+                    timedelta(hours=duration_hours)
                 )
 
-                # Energy
-                total_energy = quantity * energy_per_unit
+                total_energy = calculate_energy(
+                    quantity,
+                    energy_per_unit,
+                )
 
-                # Tariff
                 tariff, carbon_factor = get_tariff(
                     cur,
-                    start_time.time()
+                    factory_id,
+                    start_time.time(),
                 )
 
-                # Cost
-                total_cost = total_energy * tariff
-
-                # Carbon
-                total_carbon = total_energy * carbon_factor
-
-                # Expected defects
-                expected_defects = round(
-                    quantity * defect_rate
+                total_cost = calculate_energy_cost(
+                    total_energy,
+                    tariff,
                 )
 
-                # Effective quality
-                effective_quality = (
-                    (quantity - expected_defects)
-                    / quantity
-                ) * 100
-
-                # Deadline check
-                deadline_met = completion_time <= deadline
-
-                # Quality check
-                quality_met = (
-                    effective_quality >= minimum_quality
+                total_carbon = calculate_carbon(
+                    total_energy,
+                    carbon_factor,
                 )
 
-                # Carbon check
-                carbon_met = (
-                    carbon_budget is None
-                    or total_carbon <= float(carbon_budget)
+                expected_defects = calculate_expected_defects(
+                    quantity,
+                    defect_rate,
                 )
 
-                feasible = (
-                    deadline_met
-                    and quality_met
-                    and carbon_met
+                effective_quality = calculate_effective_quality(
+                    quantity,
+                    expected_defects,
                 )
+
+                constraint_result = check_constraints(
+                    completion_time=completion_time,
+                    deadline=deadline,
+                    quality=effective_quality,
+                    minimum_quality=minimum_quality,
+                    carbon=total_carbon,
+                    carbon_budget=carbon_budget,
+                )
+
+                deadline_met = constraint_result["deadline_met"]
+                quality_met = constraint_result["quality_met"]
+                carbon_met = constraint_result["carbon_budget_met"]
+                feasible = constraint_result["feasible"]
 
                 scenarios.append({
+                    "machine_health": {
+                        "score": health_score,
+                        "status": health_status,
+                    },
+                    "energy_pricing": {
+                        "price_per_kwh": tariff,
+                        "carbon_factor_kg_per_kwh": carbon_factor,
+                    },
                     "machine_id": machine_id,
                     "machine_name": machine_name,
                     "quantity": quantity,
@@ -211,6 +275,28 @@ def simulate_order(order_id: str):
                 "quantity": quantity,
                 "deadline": deadline.isoformat(),
                 "minimum_quality": float(minimum_quality),
+                "energy_pricing": {
+                    "price_per_kwh": (
+                        scenarios[0]["energy_pricing"]["price_per_kwh"]
+                        if scenarios
+                        else 7.20
+                    ),
+                    "carbon_factor_kg_per_kwh": (
+                        scenarios[0]["energy_pricing"]["carbon_factor_kg_per_kwh"]
+                        if scenarios
+                        else 0.70
+                    ),
+                },
+                "critical_machines": critical_machines,
+                "eligible_machines": [
+                    {
+                        "machine_id": machine[0],
+                        "name": machine[1],
+                        "health_score": machine[8],
+                        "health_status": machine[9],
+                    }
+                    for machine in eligible_machines
+                ],
                 "carbon_budget_kg": (
                     float(carbon_budget)
                     if carbon_budget is not None

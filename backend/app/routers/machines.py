@@ -1,3 +1,4 @@
+from app.services.machine_health import get_machine_health
 from fastapi import APIRouter, HTTPException
 from typing import List
 from app.models.machines import Machine, MachineDetail
@@ -5,6 +6,7 @@ from app.data.machines import MACHINES_DATA
 from app.services.scoring import (
     calculate_machine_health_score,
     get_machine_status,
+    get_health_factors,
 )
 router = APIRouter(prefix="/machines", tags=["Machines"])
 
@@ -39,6 +41,21 @@ async def get_machines():
 
     return machines
 
+@router.get("/{machine_id}/health")
+async def get_machine_health_endpoint(machine_id: str):
+    """
+    Retrieve the latest database-backed telemetry and calculated
+    health information for a machine.
+    """
+    health = get_machine_health(machine_id)
+
+    if health is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Machine '{machine_id}' not found"
+        )
+
+    return health
 
 @router.get("/{machine_id}", response_model=MachineDetail)
 async def get_machine_detail(machine_id: str):
@@ -64,8 +81,17 @@ async def get_machine_detail(machine_id: str):
 
     calculated_status = get_machine_status(calculated_score)
 
+    health_factors = get_health_factors(
+    power_kw=machine["power_kw"],
+    baseline_kw=machine["baseline_power_kw"],
+    vibration_mms=machine["vibration_mms"],
+    temperature_c=machine["temperature_c"],
+    machine_type=machine["type"],
+)
+
     machine_detail = machine.copy()
     machine_detail["score"] = calculated_score
     machine_detail["status"] = calculated_status
+    machine_detail["health_factors"] = health_factors
 
     return MachineDetail(**machine_detail)

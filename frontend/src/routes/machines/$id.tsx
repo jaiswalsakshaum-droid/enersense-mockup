@@ -224,6 +224,116 @@ function MachineDetail() {
             tone={currentPower > (initialMachine.baseline_power_kw || 100) * 1.15 ? "amber" : "teal"}
           />
         </div>
+        
+        {/* Health Factors */}
+<section className="mt-5 glass-panel rounded-xl border border-border p-6">
+  <div className="flex items-start justify-between">
+    <div>
+      <SectionLabel>Health factors</SectionLabel>
+      <h2 className="mt-2 font-display text-lg font-semibold text-foreground">
+        Why this machine has its current health score
+      </h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+  Score contribution from the latest machine assessment.
+</p>
+    </div>
+    <div className="rounded-lg bg-panel-raised px-3 py-2 text-right">
+      <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+        Score
+      </div>
+      <div className="mt-1 font-display text-lg font-semibold text-foreground">
+        {currentScore}/100
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-6 grid gap-4 md:grid-cols-3">
+    {/* Power */}
+    <div className="rounded-lg border border-border bg-panel-raised p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-foreground">Power</span>
+        <span className="text-[10px] font-semibold text-muted-foreground">
+          {initialMachine.health_factors.power.status}
+        </span>
+      </div>
+
+      <div className="mt-3 font-display text-xl font-semibold text-foreground">
+        {initialMachine.health_factors.power.value} kW
+      </div>
+
+      <div className="mt-1 text-xs text-muted-foreground">
+        Baseline: {initialMachine.health_factors.power.baseline} kW
+      </div>
+
+      <div className="mt-3 text-xs text-muted-foreground">
+        Deviation:{" "}
+        <span className="font-semibold text-foreground">
+          +{initialMachine.health_factors.power.deviation_pct}%
+        </span>
+      </div>
+
+      <div className="mt-2 text-xs text-muted-foreground">
+        Penalty:{" "}
+        <span className="font-semibold text-critical">
+          -{initialMachine.health_factors.power.penalty}
+        </span>
+      </div>
+    </div>
+
+    {/* Vibration */}
+    <div className="rounded-lg border border-border bg-panel-raised p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-foreground">Vibration</span>
+        <span className="text-[10px] font-semibold text-muted-foreground">
+          {initialMachine.health_factors.vibration.status}
+        </span>
+      </div>
+
+      <div className="mt-3 font-display text-xl font-semibold text-foreground">
+        {initialMachine.health_factors.vibration.value} mm/s
+      </div>
+
+      <div className="mt-3 text-xs text-muted-foreground">
+        Penalty:{" "}
+        <span className="font-semibold text-critical">
+          -{initialMachine.health_factors.vibration.penalty}
+        </span>
+      </div>
+    </div>
+
+    {/* Temperature */}
+    <div className="rounded-lg border border-border bg-panel-raised p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-foreground">Temperature</span>
+        <span className="text-[10px] font-semibold text-muted-foreground">
+          {initialMachine.health_factors.temperature.status}
+        </span>
+      </div>
+
+      <div className="mt-3 font-display text-xl font-semibold text-foreground">
+        {initialMachine.health_factors.temperature.value}°C
+      </div>
+
+      <div className="mt-1 text-xs text-muted-foreground">
+        Expected: {initialMachine.health_factors.temperature.expected}°C
+      </div>
+
+      <div className="mt-3 text-xs text-muted-foreground">
+        Deviation:{" "}
+        <span className="font-semibold text-foreground">
+          {initialMachine.health_factors.temperature.deviation}°C
+        </span>
+      </div>
+
+      <div className="mt-2 text-xs text-muted-foreground">
+        Penalty:{" "}
+        <span className="font-semibold text-critical">
+          {initialMachine.health_factors.temperature.penalty}
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
 
         {/* Live Telemetry Chart & Maintenance Log */}
         <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_340px]">
