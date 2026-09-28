@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import joblib
 import pandas as pd
 
@@ -48,6 +48,21 @@ quality_model = joblib.load(
     QUALITY_MODEL_PATH
 )
 
+# ============================================================
+# Valid machine / product IDs
+# ============================================================
+
+SCENARIO_DATA_PATH = "data/scenario_predictions.csv"
+
+scenario_data = pd.read_csv(SCENARIO_DATA_PATH)
+
+VALID_MACHINE_IDS = set(
+    scenario_data["machine_id"].astype(str).str.strip()
+)
+
+VALID_PRODUCT_IDS = set(
+    scenario_data["product_id"].astype(str).str.strip()
+)
 
 # =========================================================
 # Request schema
@@ -58,23 +73,50 @@ class PredictionRequest(BaseModel):
     machine_id: str
     product_id: str
 
-    load_percent: float
-    speed_percent: float
+    load_percent: float = Field(..., ge=0, le=100)
+    speed_percent: float = Field(..., ge=0, le=100)
 
-    ambient_temperature_c: float
-    machine_temperature_c: float
+    ambient_temperature_c: float = Field(..., ge=-50, le=100)
+    machine_temperature_c: float = Field(..., ge=-50, le=200)
 
-    maintenance_age_days: float
-    cycle_time_sec: float
+    maintenance_age_days: float = Field(..., ge=0)
+    cycle_time_sec: float = Field(..., gt=0)
 
     shift: str
 
 
+# ============================================================
+# Input validation helper
+# ============================================================
+
+def validate_machine_product(
+    machine_id: str,
+    product_id: str
+):
+    machine_id = str(machine_id).strip()
+    product_id = str(product_id).strip()
+
+    if machine_id not in VALID_MACHINE_IDS:
+        return {
+            "valid": False,
+            "error": f"Unknown machine_id: {machine_id}"
+        }
+
+    if product_id not in VALID_PRODUCT_IDS:
+        return {
+            "valid": False,
+            "error": f"Unknown product_id: {product_id}"
+        }
+
+    return {
+        "valid": True
+    }
+
 class CounterfactualRequest(BaseModel):
     machine_id: str
     product_id: str
-    load_percent: float
-    speed_percent: float
+    load_percent: float = Field(..., ge=0, le=100)
+    speed_percent: float = Field(..., ge=0, le=100)
     ambient_temperature_c: float = 30
     machine_temperature_c: float = 70
     maintenance_age_days: float = 60
@@ -84,17 +126,17 @@ class CounterfactualRequest(BaseModel):
 class WhatIfRequest(BaseModel):
     machine_id: str
     product_id: str
+    
+    current_load_percent: float = Field(..., ge=0, le=100)
+    current_speed_percent: float = Field(..., ge=0, le=100)
 
-    current_load_percent: float
-    current_speed_percent: float
-
-    what_if_load_percent: float
-    what_if_speed_percent: float
+    what_if_load_percent: float = Field(..., ge=0, le=100)
+    what_if_speed_percent: float = Field(..., ge=0, le=100)
 
     ambient_temperature_c: float
     machine_temperature_c: float
-    maintenance_age_days: float
-    cycle_time_sec: float
+    maintenance_age_days: float = Field(..., ge=0)
+    cycle_time_sec: float = Field(..., gt=0)
     shift: str
 
 
@@ -124,6 +166,31 @@ async def health():
 async def predict(
     request: PredictionRequest
 ):
+
+    validation = validate_machine_product(
+        request.machine_id,
+        request.product_id
+    )
+
+    if not validation["valid"]:
+        return {
+            "status": "ERROR",
+            "machine_id": request.machine_id,
+            "product_id": request.product_id,
+            "error": validation["error"]
+        }
+    
+    if request.machine_id not in VALID_MACHINE_IDS:
+        return {
+            "status": "error",
+            "message": f"Unknown machine_id: {request.machine_id}"
+        }
+
+    if request.product_id not in VALID_PRODUCT_IDS:
+        return {
+            "status": "error",
+            "message": f"Unknown product_id: {request.product_id}"
+        }
 
     data = pd.DataFrame(
         [

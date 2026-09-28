@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+ import { Link, useLocation } from "@tanstack/react-router";
 import {
   Activity,
   AlertTriangle,
@@ -43,7 +43,12 @@ export const navItems = [
   { to: "/alerts", key: "nav.alerts", defaultLabel: "Alerts", icon: Bell },
   { to: "/audit", key: "nav.audit", defaultLabel: "Energy audit", icon: Lightbulb },
   { to: "/simulate", key: "nav.simulate", defaultLabel: "Simulator", icon: Sparkles },
-  { to: "/process-twin", key: "nav.process_twin", defaultLabel: "ProcessTwin AI", icon: Factory },
+   {
+  to: "/process-twin",
+  key: "nav.processTwin",
+  defaultLabel: "ProcessTwin",
+  icon: Factory,
+    },
 ];
 
 export function LogoMark() {
