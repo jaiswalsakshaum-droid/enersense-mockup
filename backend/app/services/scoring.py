@@ -10,10 +10,19 @@ from typing import Dict, Any
 
 EXPECTED_TEMPERATURES = {
     "Melting furnace": 650.0,
+    "Induction Furnace": 650.0,
+
     "Rotary screw compressor": 80.0,
+    "Air Compressor": 80.0,
+
     "CNC turning centre": 45.0,
+    "CNC Lathe": 45.0,
+
     "Baghouse filter": 50.0,
+    "Dust Collector": 50.0,
+
     "Induced draft": 38.0,
+    "Cooling Tower": 38.0,
 }
 
 

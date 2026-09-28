@@ -1,64 +1,167 @@
 import asyncio
 import json
-import random
 import datetime
+
 from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
-from app.data.machines import MACHINES_DATA
 
-router = APIRouter(prefix="/stream", tags=["Streaming"])
+from app.database.connection import get_connection
+
+
+router = APIRouter(
+    prefix="/stream",
+    tags=["Streaming"]
+)
 
 
 @router.get("/live")
-async def stream_live_readings(machine_id: str = Query("induction-furnace-01", description="ID of the machine to stream")):
+async def stream_live_readings(
+    machine_id: str = Query(
+        "induction-furnace-01",
+        description="ID of the machine to stream"
+    )
+):
     """
-    Server-Sent Events (SSE) endpoint streaming simulated real-time telemetry readings
-    every 3 seconds with a smooth random walk around baseline operating levels.
+    Stream the latest database-backed telemetry through SSE.
+
+    The database currently contains hourly telemetry rather than
+    continuously arriving sensor readings, so this endpoint
+    repeatedly publishes the latest database reading instead of
+    generating fake/random sensor values.
     """
-    machine = next((m for m in MACHINES_DATA if m["id"] == machine_id), MACHINES_DATA[0])
 
     async def event_generator():
-        # Keep track of rolling state
-        current_power = float(machine["power_kw"])
-        current_temp = float(machine["temperature_c"])
-        current_vibe = float(machine["vibration_mms"])
 
         while True:
-            # Random walk with mean reversion
-            power_drift = random.uniform(-1.5, 1.5)
-            # Revert gently towards base
-            base_power = float(machine["baseline_power_kw"])
-            if current_power > base_power + 15:
-                power_drift -= 1.0
-            elif current_power < base_power - 10:
-                power_drift += 1.0
-            current_power = max(5.0, round(current_power + power_drift, 1))
 
-            temp_drift = random.uniform(-0.8, 0.8)
-            current_temp = max(20.0, round(current_temp + temp_drift, 1))
+            conn = None
 
-            vibe_drift = random.uniform(-0.15, 0.15)
-            current_vibe = max(0.2, round(current_vibe + vibe_drift, 2))
+            try:
+                conn = get_connection()
 
-            # Dynamic health score
-            health_score = int(machine["score"])
-            if current_vibe > 4.5 or current_power > base_power * 1.2:
-                health_score = max(50, health_score - 2)
+                with conn.cursor() as cur:
 
-            now_str = datetime.datetime.now().strftime("%H:%M:%S")
+                    cur.execute("""
+                        SELECT
+                            m.machine_id,
+                            m.baseline_power_kw,
+                            t.power_kw,
+                            t.temperature_c,
+                            t.vibration_mms,
+                            t.timestamp
+                        FROM machines m
+                        JOIN LATERAL (
+                            SELECT
+                                power_kw,
+                                temperature_c,
+                                vibration_mms,
+                                timestamp
+                            FROM machine_telemetry
+                            WHERE machine_id = m.machine_id
+                            ORDER BY timestamp DESC
+                            LIMIT 1
+                        ) t ON TRUE
+                        WHERE m.machine_id = %s;
+                    """, (machine_id,))
 
-            payload = {
-                "machine_id": machine["id"],
-                "timestamp": now_str,
-                "power_kw": current_power,
-                "temperature_c": current_temp,
-                "vibration_mms": current_vibe,
-                "score": health_score,
-                "status": "Critical" if current_vibe > 4.8 else ("Warning" if current_vibe > 3.2 or current_power > base_power * 1.15 else "Normal"),
-            }
+                    row = cur.fetchone()
 
-            yield f"data: {json.dumps(payload)}\n\n"
-            await asyncio.sleep(3.0)
+                if not row:
+                    payload = {
+                        "machine_id": machine_id,
+                        "error": "Machine telemetry not found"
+                    }
+
+                else:
+
+                    (
+                        db_machine_id,
+                        baseline_power_kw,
+                        power_kw,
+                        temperature_c,
+                        vibration_mms,
+                        telemetry_timestamp,
+                    ) = row
+
+                    baseline_power_kw = float(
+                        baseline_power_kw
+                    )
+
+                    power_kw = float(power_kw)
+                    temperature_c = float(
+                        temperature_c
+                    )
+                    vibration_mms = float(
+                        vibration_mms
+                    )
+
+                    # Simple status derived from current
+                    # telemetry relative to machine baseline.
+                    if vibration_mms >= 4.8:
+                        status = "Critical"
+
+                    elif (
+                        vibration_mms >= 3.2
+                        or power_kw > baseline_power_kw * 1.15
+                    ):
+                        status = "Warning"
+
+                    else:
+                        status = "Normal"
+
+                    payload = {
+                        "machine_id": db_machine_id,
+
+                        # Timestamp of the actual telemetry
+                        # record, not a fabricated sensor value.
+                        "timestamp": (
+                            telemetry_timestamp.isoformat()
+                        ),
+
+                        # Time when the SSE message was sent.
+                        "streamed_at": (
+                            datetime.datetime.now().isoformat()
+                        ),
+
+                        "power_kw": round(
+                            power_kw,
+                            2
+                        ),
+
+                        "temperature_c": round(
+                            temperature_c,
+                            2
+                        ),
+
+                        "vibration_mms": round(
+                            vibration_mms,
+                            2
+                        ),
+
+                        "status": status,
+                    }
+
+                yield (
+                    f"data: {json.dumps(payload)}\n\n"
+                )
+
+            except Exception as e:
+
+                yield (
+                    "data: "
+                    + json.dumps({
+                        "machine_id": machine_id,
+                        "error": str(e)
+                    })
+                    + "\n\n"
+                )
+
+            finally:
+
+                if conn:
+                    conn.close()
+
+            await asyncio.sleep(3)
 
     return StreamingResponse(
         event_generator(),
