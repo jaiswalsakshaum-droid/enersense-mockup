@@ -159,7 +159,31 @@ export interface SimulateResponse {
   summary: string;
   breakdown: Record<string, any>;
 }
+export interface OptimizationScenario {
+  machine_allocations: {
+    machine_id: string;
+    machine_name: string;
+    quantity: number;
+  }[];
+  duration_hours: number;
+  energy_kwh: number;
+  energy_cost_inr: number;
+  carbon_kg: number;
+  quality_percent: number;
+  deadline_met: boolean;
+  quality_met: boolean;
+  carbon_budget_met: boolean;
+  feasible: boolean;
+}
 
+export interface OptimizationResult {
+  order_id: string;
+  product_id: string;
+  quantity: number;
+  scenarios: OptimizationScenario[];
+  best_plan: OptimizationScenario | null;
+  message: string;
+}
 export interface SchemeItem {
   id: string;
   title: string;
@@ -182,50 +206,6 @@ export interface LiveStreamPayload {
   vibration_mms: number;
   score: number;
   status: MachineStatus;
-}
-
-// =========================================================
-// ML Intelligence API
-// =========================================================
-
-export interface MLAnalysisRequest {
-  machine_id: string;
-  product_id: string;
-  load_percent: number;
-  speed_percent: number;
-  ambient_temperature_c: number;
-  machine_temperature_c: number;
-  maintenance_age_days: number;
-  cycle_time_sec: number;
-  shift: string;
-}
-
-export interface MLSimulationRequest {
-  machine_id: string;
-  product_id: string;
-  current_load_percent: number;
-  current_speed_percent: number;
-  what_if_load_percent: number;
-  what_if_speed_percent: number;
-  ambient_temperature_c: number;
-  machine_temperature_c: number;
-  maintenance_age_days: number;
-  cycle_time_sec: number;
-  shift: string;
-}
-
-export interface MLCounterfactualRequest {
-  machine_id: string;
-  product_id: string;
-  current_load_percent: number;
-  current_speed_percent: number;
-  what_if_load_percent: number;
-  what_if_speed_percent: number;
-  ambient_temperature_c: number;
-  machine_temperature_c: number;
-  maintenance_age_days: number;
-  cycle_time_sec: number;
-  shift: string;
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -284,74 +264,112 @@ export async function fetchSchemes(industryType?: string, monthlyConsumption?: n
 export function getLiveStreamUrl(machineId: string): string {
   return `${API_BASE}/stream/live?machine_id=${encodeURIComponent(machineId)}`;
 }
-
-
-// =========================================================
-// ML ENDPOINTS
-// =========================================================
-
-export async function runMLAnalysis(
-  data: MLAnalysisRequest
-): Promise<Record<string, any>> {
-  return request<Record<string, any>>("/ml/analyze", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export interface MachineHealthInfo {
+  score: number;
+  status: MachineStatus;
 }
 
-export async function runMLSimulation(
-  data: MLSimulationRequest
-): Promise<Record<string, any>> {
-  return request<Record<string, any>>("/ml/simulate", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export interface OptimizationScenario {
+  allocation: Record<string, number>;
+  machine_names: Record<string, string>;
+  machine_health: Record<string, MachineHealthInfo>;
+  energy_kwh: number;
+  cost_inr: number;
+  carbon_kg: number;
+  duration_hours: number;
+  completion_time: string;
+  quality_percent: number;
+  deadline_met: boolean;
+  quality_met: boolean;
+  carbon_budget_met: boolean;
+  feasible: boolean;
 }
 
-export async function runMLCounterfactual(
-  data: MLCounterfactualRequest
-): Promise<Record<string, any>> {
-  return request<Record<string, any>>("/ml/counterfactual", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export interface ProductionOrderRequest {
+export interface OptimizationResult {
   order_id: string;
-  factory_id: string;
-  product_id: string;
   quantity: number;
   deadline: string;
   minimum_quality: number;
-  carbon_budget_kg: number;
-  priority: string;
+  energy_pricing: {
+    price_per_kwh: number;
+    carbon_factor_kg_per_kwh: number;
+  };
+  total_scenarios_tested: number;
+  scenarios: OptimizationScenario[];
+  critical_machines: Array<{
+    machine_id: string;
+    name: string;
+    health_score: number;
+    health_status: MachineStatus;
+  }>;
+  eligible_machines: Array<{
+    machine_id: string;
+    name: string;
+    health_score: number;
+    health_status: MachineStatus;
+  }>;
+  carbon_budget_kg: number | null;
+  baseline: OptimizationScenario;
+  best_plan: OptimizationScenario | null;
+  message: string;
 }
 
-export interface ProductionOrderResponse {
+export interface ProcessTwinScenario {
+  machine_health: MachineHealthInfo;
+  energy_pricing: {
+    price_per_kwh: number;
+    carbon_factor_kg_per_kwh: number;
+  };
+  machine_id: string;
+  machine_name: string;
+  quantity: number;
+  duration_hours: number;
+  start_time: string;
+  completion_time: string;
+  energy_kwh: number;
+  energy_cost_inr: number;
+  carbon_kg: number;
+  expected_defects: number;
+  quality_percent: number;
+  deadline_met: boolean;
+  quality_met: boolean;
+  carbon_budget_met: boolean;
+  feasible: boolean;
+}
+
+export interface ProcessTwinResult {
   order_id: string;
-  factory_id: string;
-  product_id: string;
   quantity: number;
   deadline: string;
   minimum_quality: number;
-  carbon_budget_kg: number;
-  priority: string;
+  energy_pricing: {
+    price_per_kwh: number;
+    carbon_factor_kg_per_kwh: number;
+  };
+  critical_machines: Array<{
+    machine_id: string;
+    name: string;
+    health_score: number;
+    health_status: MachineStatus;
+  }>;
+  eligible_machines: Array<{
+    machine_id: string;
+    name: string;
+    health_score: number;
+    health_status: MachineStatus;
+  }>;
+  carbon_budget_kg: number | null;
+  scenarios: ProcessTwinScenario[];
+  best_scenario: ProcessTwinScenario | null;
+  recommendation: string;
 }
-
-export async function createProductionOrder(
-  data: ProductionOrderRequest
-): Promise<ProductionOrderResponse> {
-  return request<ProductionOrderResponse>("/orders/", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export async function generateProductionPlan(
+export async function runProcessTwin(
   orderId: string
-): Promise<any> {
-  return request<any>(`/plans/generate/${orderId}`, {
-    method: "POST",
-  });
+): Promise<ProcessTwinResult> {
+  return request<ProcessTwinResult>(
+    `/process-twin/simulate/${orderId}`,
+    {
+      method: "POST",
+    }
+  );
 }
