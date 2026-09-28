@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from app.database.connection import get_connection
 from app.services.machine_health import get_machine_health
 from app.services.production_calculations import (
-    calculate_production_duration,
+    calculate_batch_production_duration,
     calculate_energy,
     calculate_energy_cost,
     calculate_carbon,
@@ -81,7 +81,9 @@ def simulate_order(order_id: str):
                     m.capacity_units_per_hour,
                     m.quality_score,
                     c.energy_kwh_per_unit,
-                    c.defect_rate
+                    c.defect_rate,
+                    c.processing_time_min,
+                    c.max_batch_size
                 FROM machines m
                 JOIN machine_product_capabilities c
                     ON m.machine_id = c.machine_id
@@ -146,22 +148,25 @@ def simulate_order(order_id: str):
                     quality_score,
                     energy_per_unit,
                     defect_rate,
+                    processing_time_min,
+                    max_batch_size,
                     health_score,
                     health_status,
                 ) = machine
-
                 capacity_per_hour = float(capacity_per_hour)
                 quality_score = float(quality_score)
                 energy_per_unit = float(energy_per_unit)
                 defect_rate = float(defect_rate)
                 health_score = int(health_score)
+                processing_time_min = float(processing_time_min)
+                max_batch_size = int(max_batch_size)
 
                 # Production duration
-                duration_hours = calculate_production_duration(
+                duration_hours = calculate_batch_production_duration(
                     quantity,
-                    capacity_per_hour,
+                    processing_time_min,
+                    max_batch_size,
                 )
-
                 start_time = datetime.now()
 
                 completion_time = (
@@ -287,8 +292,8 @@ def simulate_order(order_id: str):
                     {
                         "machine_id": machine[0],
                         "name": machine[1],
-                        "health_score": machine[6],
-                        "health_status": machine[7],
+                        "health_score": machine[8],
+                        "health_status": machine[9],
                     }
                     for machine in eligible_machines
                 ],

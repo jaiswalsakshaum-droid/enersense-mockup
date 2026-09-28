@@ -457,6 +457,7 @@ def optimize_order(order_id: str):
                     "carbon_factor_kg_per_kwh": carbon_factor,
                 },
                 "total_scenarios_tested": len(scenarios),
+                "scenarios": scenarios,
                 "critical_machines": critical_machines,
                 "eligible_machines": [
                     {
