@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from pathlib import Path
 
 
@@ -9,25 +8,17 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 
-SCENARIO_FILE = (
-    BASE_DIR / "data" / "scenario_predictions.csv"
-)
+SCENARIO_FILE = BASE_DIR / "data" / "scenario_predictions.csv"
 
-ENERGY_DEBT_FILE = (
-    BASE_DIR / "data" / "energy_debt_report.csv"
-)
+FEASIBLE_FILE = BASE_DIR / "data" / "feasible_scenarios.csv"
 
-DNA_FILE = (
-    BASE_DIR / "data" / "dna_drift_report.csv"
-)
+ENERGY_DEBT_FILE = BASE_DIR / "data" / "energy_debt_report.csv"
 
-CASCADE_FILE = (
-    BASE_DIR / "data" / "cascade_alerts.csv"
-)
+DNA_FILE = BASE_DIR / "data" / "dna_drift_report.csv"
 
-RISK_FILE = (
-    BASE_DIR / "data" / "risk_aware_recommendation.csv"
-)
+CASCADE_FILE = BASE_DIR / "data" / "cascade_alerts.csv"
+
+RISK_FILE = BASE_DIR / "data" / "risk_aware_recommendation.csv"
 
 
 # ============================================================
@@ -37,9 +28,13 @@ RISK_FILE = (
 def load_reports():
 
     scenarios = pd.read_csv(SCENARIO_FILE)
+
     energy_debt = pd.read_csv(ENERGY_DEBT_FILE)
+
     dna = pd.read_csv(DNA_FILE)
+
     cascade = pd.read_csv(CASCADE_FILE)
+
     risk = pd.read_csv(RISK_FILE)
 
     return scenarios, energy_debt, dna, cascade, risk
@@ -49,53 +44,87 @@ def load_reports():
 # FIND CLOSEST SCENARIO
 # ============================================================
 
-def find_closest_scenario(request):
+def find_closest_scenario(request, scenarios):
 
-    scenarios = pd.read_csv(
-        SCENARIO_FILE
-    )
+    # --------------------------------------------------------
+    # Normalize IDs
+    # --------------------------------------------------------
 
-    # First restrict to same machine/product
+    scenarios["machine_id"] = scenarios["machine_id"].astype(str).str.strip()
+
+    scenarios["product_id"] = scenarios["product_id"].astype(str).str.strip()
+
+    machine_id = str(request["machine_id"]).strip()
+
+    product_id = str(request["product_id"]).strip()
+
+    # --------------------------------------------------------
+    # First restrict to same machine + product
+    # --------------------------------------------------------
+
     candidates = scenarios[
-        (scenarios["machine_id"] == request["machine_id"])
+        (scenarios["machine_id"] == machine_id)
         &
-        (scenarios["product_id"] == request["product_id"])
+        (scenarios["product_id"] == product_id)
     ].copy()
 
     if candidates.empty:
         return None
 
-    # Calculate distance between requested state
-    # and simulated states.
+    # --------------------------------------------------------
+    # Calculate distance
+    # --------------------------------------------------------
+
     candidates["distance"] = (
-        (candidates["load_percent"]
-         - request["load_percent"]).abs()
+
+        (
+            candidates["load_percent"]
+            - float(request["load_percent"])
+        ).abs()
+
         +
-        (candidates["speed_percent"]
-         - request["speed_percent"]).abs()
+
+        (
+            candidates["speed_percent"]
+            - float(request["speed_percent"])
+        ).abs()
+
         +
-        (candidates["machine_temperature_c"]
-         - request["machine_temperature_c"]).abs()
-        * 0.5
+
+        (
+            candidates["machine_temperature_c"]
+            - float(request["machine_temperature_c"])
+        ).abs() * 0.5
+
         +
-        (candidates["ambient_temperature_c"]
-         - request["ambient_temperature_c"]).abs()
-        * 0.2
+
+        (
+            candidates["ambient_temperature_c"]
+            - float(request["ambient_temperature_c"])
+        ).abs() * 0.2
+
         +
-        (candidates["maintenance_age_days"]
-         - request["maintenance_age_days"]).abs()
-        * 0.1
+
+        (
+            candidates["maintenance_age_days"]
+            - float(request["maintenance_age_days"])
+        ).abs() * 0.1
+
         +
-        (candidates["cycle_time_sec"]
-         - request["cycle_time_sec"]).abs()
-        * 0.1
+
+        (
+            candidates["cycle_time_sec"]
+            - float(request["cycle_time_sec"])
+        ).abs() * 0.1
     )
 
-    closest = candidates.loc[
-        candidates["distance"].idxmin()
-    ]
+    # --------------------------------------------------------
+    # Return closest scenario
+    # --------------------------------------------------------
 
-    return closest
+    closest_index = candidates["distance"].idxmin()
+
+    return candidates.loc[closest_index]
 
 
 # ============================================================
@@ -109,21 +138,44 @@ def find_record(
     load_percent,
     speed_percent
 ):
-
+    # First filter by machine and product
     records = df[
         (df["machine_id"] == machine_id)
-        &
-        (df["product_id"] == product_id)
-        &
-        (df["load_percent"] == load_percent)
-        &
-        (df["speed_percent"] == speed_percent)
-    ]
+        & (df["product_id"] == product_id)
+    ].copy()
 
     if records.empty:
         return None
 
-    return records.iloc[0]
+    # Calculate distance based on load and speed
+    records["distance"] = (
+        (records["load_percent"] - load_percent).abs()
+        +
+        (records["speed_percent"] - speed_percent).abs()
+    )
+
+    # Return the closest available record
+    closest = records.loc[
+        records["distance"].idxmin()
+    ]
+
+    return closest
+
+# ============================================================
+# SAFE FLOAT
+# ============================================================
+
+def safe_float(value, default=0.0):
+
+    try:
+        if pd.isna(value):
+            return default
+
+        return float(value)
+
+    except (TypeError, ValueError):
+
+        return default
 
 
 # ============================================================
@@ -132,30 +184,69 @@ def find_record(
 
 def get_intelligence(request):
 
-    scenarios, energy_debt, dna, cascade, risk = (
-        load_reports()
+    # --------------------------------------------------------
+    # Load all reports
+    # --------------------------------------------------------
+
+    (
+        scenarios,
+        energy_debt,
+        dna,
+        cascade,
+        risk,
+    ) = load_reports()
+
+    # --------------------------------------------------------
+    # Find closest simulated scenario
+    # --------------------------------------------------------
+
+    scenario = find_closest_scenario(
+        request,
+        scenarios
     )
 
-    # Find closest simulated operating state
-    scenario = find_closest_scenario(request)
-
     if scenario is None:
+
+        available_machines = sorted(
+            scenarios["machine_id"]
+            .astype(str)
+            .unique()
+            .tolist()
+        )
+
+        available_products = sorted(
+            scenarios["product_id"]
+            .astype(str)
+            .unique()
+            .tolist()
+        )
 
         return {
             "status": "not_found",
             "message": (
                 "No simulated scenario exists for "
                 "this machine and product."
-            )
+            ),
+            "requested_machine": request["machine_id"],
+            "requested_product": request["product_id"],
+            "available_machines": available_machines,
+            "available_products": available_products,
         }
 
+    # --------------------------------------------------------
+    # Extract operating state
+    # --------------------------------------------------------
+
     machine_id = scenario["machine_id"]
+
     product_id = scenario["product_id"]
+
     load = scenario["load_percent"]
+
     speed = scenario["speed_percent"]
 
     # --------------------------------------------------------
-    # Energy Debt
+    # Find supporting records
     # --------------------------------------------------------
 
     debt = find_record(
@@ -166,10 +257,6 @@ def get_intelligence(request):
         speed
     )
 
-    # --------------------------------------------------------
-    # DNA Drift
-    # --------------------------------------------------------
-
     dna_record = find_record(
         dna,
         machine_id,
@@ -177,10 +264,6 @@ def get_intelligence(request):
         load,
         speed
     )
-
-    # --------------------------------------------------------
-    # Cascade
-    # --------------------------------------------------------
 
     cascade_record = find_record(
         cascade,
@@ -190,11 +273,13 @@ def get_intelligence(request):
         speed
     )
 
-    # --------------------------------------------------------
-    # Build response
-    # --------------------------------------------------------
+    # ========================================================
+    # BASE RESPONSE
+    # ========================================================
 
     response = {
+
+        "status": "success",
 
         "machine_id": machine_id,
 
@@ -203,14 +288,14 @@ def get_intelligence(request):
         "operating_state": {
 
             "load_percent":
-                float(load),
+                safe_float(load),
 
             "speed_percent":
-                float(speed),
+                safe_float(speed),
 
             "predicted_energy_kwh":
                 round(
-                    float(
+                    safe_float(
                         scenario["predicted_energy_kwh"]
                     ),
                     3
@@ -218,7 +303,7 @@ def get_intelligence(request):
 
             "predicted_production_units":
                 round(
-                    float(
+                    safe_float(
                         scenario[
                             "predicted_production_units"
                         ]
@@ -228,7 +313,7 @@ def get_intelligence(request):
 
             "predicted_defect_rate":
                 round(
-                    float(
+                    safe_float(
                         scenario[
                             "predicted_defect_rate"
                         ]
@@ -238,10 +323,18 @@ def get_intelligence(request):
 
             "energy_per_unit":
                 round(
-                    float(
+                    safe_float(
                         scenario["energy_per_unit"]
                     ),
                     5
+                ),
+
+            "predicted_energy_cost_inr":
+                round(
+                    safe_float(
+                        scenario["predicted_energy_cost_inr"]
+                    ),
+                    2
                 )
         },
 
@@ -264,40 +357,42 @@ def get_intelligence(request):
 
             "energy_debt_kwh":
                 round(
-                    float(
-                        debt["energy_debt_kwh"]
+                    safe_float(
+                        debt.get("energy_debt_kwh")
                     ),
                     3
                 ),
 
             "energy_debt_percent":
                 round(
-                    float(
-                        debt["energy_debt_percent"]
+                    safe_float(
+                        debt.get("energy_debt_percent")
                     ),
                     2
                 ),
 
             "avoidable_cost_inr":
                 round(
-                    float(
-                        debt["avoidable_cost_inr"]
+                    safe_float(
+                        debt.get("avoidable_cost_inr")
                     ),
                     2
                 ),
 
             "best_load_percent":
-                float(
-                    debt["best_load_percent"]
+                safe_float(
+                    debt.get("best_load_percent")
                 ),
 
             "best_speed_percent":
-                float(
-                    debt["best_speed_percent"]
+                safe_float(
+                    debt.get("best_speed_percent")
                 ),
 
             "status":
-                debt["status"]
+                str(
+                    debt.get("status", "unknown")
+                )
         }
 
     # ========================================================
@@ -310,22 +405,37 @@ def get_intelligence(request):
 
             "drift_score":
                 round(
-                    float(
-                        dna_record[
+                    safe_float(
+                        dna_record.get(
                             "dna_drift_score"
-                        ]
+                        )
                     ),
                     2
                 ),
 
             "severity":
-                dna_record["severity"],
+                str(
+                    dna_record.get(
+                        "severity",
+                        "unknown"
+                    )
+                ),
 
             "primary_issue":
-                dna_record["primary_issue"],
+                str(
+                    dna_record.get(
+                        "primary_issue",
+                        ""
+                    )
+                ),
 
             "explanation":
-                dna_record["explanation"]
+                str(
+                    dna_record.get(
+                        "explanation",
+                        ""
+                    )
+                )
         }
 
     # ========================================================
@@ -337,30 +447,55 @@ def get_intelligence(request):
         response["cascade"] = {
 
             "type":
-                cascade_record["cascade_type"],
+                str(
+                    cascade_record.get(
+                        "cascade_type",
+                        "unknown"
+                    )
+                ),
 
             "severity":
-                cascade_record["severity"],
+                str(
+                    cascade_record.get(
+                        "severity",
+                        "unknown"
+                    )
+                ),
 
             "root_cause":
-                cascade_record["root_cause"],
+                str(
+                    cascade_record.get(
+                        "root_cause",
+                        ""
+                    )
+                ),
 
             "message":
-                cascade_record["message"],
+                str(
+                    cascade_record.get(
+                        "message",
+                        ""
+                    )
+                ),
 
             "recommendation":
-                cascade_record["recommendation"]
+                str(
+                    cascade_record.get(
+                        "recommendation",
+                        ""
+                    )
+                )
         }
 
     # ========================================================
     # RISK
     # ========================================================
 
-    if not risk.empty:
+    if not risk.empty and "machine_id" in risk.columns:
 
-        # Find same machine if available
         risk_machine = risk[
-            risk["machine_id"] == machine_id
+            risk["machine_id"].astype(str).str.strip()
+            == str(machine_id).strip()
         ]
 
         if not risk_machine.empty:
@@ -371,26 +506,30 @@ def get_intelligence(request):
 
                 "risk_score":
                     round(
-                        float(
-                            best_risk["risk_score"]
+                        safe_float(
+                            best_risk.get(
+                                "risk_score"
+                            )
                         ),
                         2
                     ),
 
                 "uncertainty_percent":
                     round(
-                        float(
-                            best_risk[
+                        safe_float(
+                            best_risk.get(
                                 "energy_uncertainty_percent"
-                            ]
+                            )
                         ),
                         2
                     ),
 
                 "robust_score":
                     round(
-                        float(
-                            best_risk["robust_score"]
+                        safe_float(
+                            best_risk.get(
+                                "robust_score"
+                            )
                         ),
                         4
                     )

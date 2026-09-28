@@ -1,212 +1,289 @@
-import itertools
 import pandas as pd
 import joblib
+from pathlib import Path
 
 
-# =========================================================
-# Model paths
-# =========================================================
+# ============================================================
+# PATHS
+# ============================================================
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+DATA_PATH = BASE_DIR / "data" / "raw" / "factory_production_data.csv"
 
 ENERGY_MODEL_PATH = (
-    "trained_models/energy_prediction_model.joblib"
+    BASE_DIR / "trained_models" / "energy_prediction_model.joblib"
 )
 
 PRODUCTION_MODEL_PATH = (
-    "trained_models/production_prediction_model.joblib"
+    BASE_DIR / "trained_models" / "production_prediction_model.joblib"
 )
 
 QUALITY_MODEL_PATH = (
-    "trained_models/quality_prediction_model.joblib"
+    BASE_DIR / "trained_models" / "quality_prediction_model.joblib"
+)
+
+OUTPUT_PATH = (
+    BASE_DIR / "data" / "scenario_predictions.csv"
 )
 
 
-# =========================================================
-# Load models
-# =========================================================
+# ============================================================
+# SCENARIO VALUES
+# ============================================================
 
-print("Loading EnnerSense models...")
-
-energy_model = joblib.load(
-    ENERGY_MODEL_PATH
-)
-
-production_model = joblib.load(
-    PRODUCTION_MODEL_PATH
-)
-
-quality_model = joblib.load(
-    QUALITY_MODEL_PATH
-)
-
-print("Models loaded.")
+LOAD_VALUES = [50, 60, 70, 80, 90, 100]
+SPEED_VALUES = [60, 70, 80, 90, 100]
 
 
-# =========================================================
-# Generate scenarios
-# =========================================================
+# ============================================================
+# LOAD MODELS
+# ============================================================
 
-def generate_scenarios(
-    machine_id="HEAT_01",
-    product_id="P001",
-    shift="Morning",
-    ambient_temperature_c=28,
-    maintenance_age_days=30,
-    cycle_time_sec=45,
-):
-    """
-    Generate possible operating scenarios.
-    """
+def load_models():
 
-    loads = range(70, 101, 2)
+    print("Loading trained models...")
 
-    speeds = range(75, 101, 5)
+    energy_model = joblib.load(ENERGY_MODEL_PATH)
+    production_model = joblib.load(PRODUCTION_MODEL_PATH)
+    quality_model = joblib.load(QUALITY_MODEL_PATH)
+
+    print("Models loaded successfully.")
+
+    return (
+        energy_model,
+        production_model,
+        quality_model,
+    )
+
+
+# ============================================================
+# GENERATE SCENARIOS
+# ============================================================
+
+def generate_scenarios():
+
+    print("=" * 70)
+    print("ENNERSENSE — SCENARIO PREDICTION GENERATOR")
+    print("=" * 70)
+
+    print("\nLoading dataset...")
+
+    df = pd.read_csv(DATA_PATH)
+
+    print(f"Dataset shape: {df.shape}")
+
+    energy_model, production_model, quality_model = load_models()
+
+    # --------------------------------------------------------
+    # Get representative values
+    # --------------------------------------------------------
+
+    machines = sorted(df["machine_id"].unique())
+    products = sorted(df["product_id"].unique())
+
+    print("\nMachines:")
+    print(machines)
+
+    print("\nProducts:")
+    print(products)
 
     scenarios = []
 
-    for load, speed in itertools.product(
-        loads,
-        speeds,
-    ):
+    # --------------------------------------------------------
+    # Generate operating scenarios
+    # --------------------------------------------------------
 
-        # Approximate machine temperature
-        # for the proposed operating condition.
+    for machine_id in machines:
 
-        machine_temperature = (
-            42
-            + 0.30 * load
-            + 0.10 * ambient_temperature_c
-            + 0.015
-            * max(load - 80, 0) ** 2
-        )
+        for product_id in products:
 
-        scenarios.append(
-            {
-                "machine_id": machine_id,
-                "product_id": product_id,
-                "load_percent": load,
-                "speed_percent": speed,
-                "ambient_temperature_c": ambient_temperature_c,
-                "machine_temperature_c": machine_temperature,
-                "maintenance_age_days": maintenance_age_days,
-                "cycle_time_sec": cycle_time_sec,
-                "shift": shift,
-            }
-        )
+            # Get representative row for machine/product
+            subset = df[
+                (df["machine_id"] == machine_id)
+                & (df["product_id"] == product_id)
+            ]
 
-    return pd.DataFrame(scenarios)
+            if subset.empty:
+                continue
 
+            base = subset.iloc[0]
 
-# =========================================================
-# Evaluate scenarios
-# =========================================================
+            for load in LOAD_VALUES:
 
-def evaluate_scenarios(df):
+                for speed in SPEED_VALUES:
 
-    predictions = df.copy()
+                    scenario = {
+                        "machine_id": machine_id,
+                        "product_id": product_id,
 
-    predictions["predicted_energy_kwh"] = (
-        energy_model.predict(df)
-    )
+                        "load_percent": load,
+                        "speed_percent": speed,
 
-    predictions["predicted_production_units"] = (
-        production_model.predict(df)
-    )
+                        "ambient_temperature_c":
+                            float(
+                                subset[
+                                    "ambient_temperature_c"
+                                ].mean()
+                            ),
 
-    predictions["predicted_defect_rate"] = (
-        quality_model.predict(df)
-    )
+                        "machine_temperature_c":
+                            float(
+                                subset[
+                                    "machine_temperature_c"
+                                ].mean()
+                            ),
 
-    return predictions
+                        "maintenance_age_days":
+                            float(
+                                subset[
+                                    "maintenance_age_days"
+                                ].mean()
+                            ),
 
+                        "cycle_time_sec":
+                            float(
+                                subset[
+                                    "cycle_time_sec"
+                                ].mean()
+                            ),
 
-# =========================================================
-# Main
-# =========================================================
+                        "shift":
+                            base["shift"],
+                    }
 
-if __name__ == "__main__":
+                    scenarios.append(scenario)
 
-    print("\n" + "=" * 70)
-    print("ENNERSENSE — SCENARIO GENERATOR")
-    print("=" * 70)
-
-    scenarios = generate_scenarios()
+    scenario_df = pd.DataFrame(scenarios)
 
     print(
-        f"\nGenerated scenarios: {len(scenarios):,}"
+        f"\nGenerated scenarios: "
+        f"{len(scenario_df):,}"
     )
 
-    results = evaluate_scenarios(
-        scenarios
+    # ========================================================
+    # MODEL PREDICTIONS
+    # ========================================================
+
+    print("\nGenerating predictions...")
+
+    energy_predictions = energy_model.predict(
+        scenario_df
     )
 
-    # -----------------------------------------------------
-    # Calculate energy per unit
-    # -----------------------------------------------------
-
-    results["energy_per_unit"] = (
-        results["predicted_energy_kwh"]
-        / results["predicted_production_units"]
+    production_predictions = production_model.predict(
+        scenario_df
     )
 
-    # -----------------------------------------------------
-    # Calculate estimated cost
-    # -----------------------------------------------------
-
-    electricity_price = 8.5
-
-    results["predicted_energy_cost_inr"] = (
-        results["predicted_energy_kwh"]
-        * electricity_price
+    quality_predictions = quality_model.predict(
+        scenario_df
     )
 
-    # -----------------------------------------------------
-    # Sort by energy efficiency
-    # -----------------------------------------------------
-
-    results = results.sort_values(
-        "energy_per_unit"
+    scenario_df["predicted_energy_kwh"] = (
+        energy_predictions
     )
 
-    # -----------------------------------------------------
-    # Display top scenarios
-    # -----------------------------------------------------
-
-    print("\nTOP 10 ENERGY-EFFICIENT SCENARIOS")
-    print("-" * 70)
-
-    columns = [
-        "load_percent",
-        "speed_percent",
-        "predicted_energy_kwh",
-        "predicted_production_units",
-        "predicted_defect_rate",
-        "energy_per_unit",
-        "predicted_energy_cost_inr",
-    ]
-
-    print(
-        results[columns]
-        .head(10)
-        .round(4)
-        .to_string(index=False)
+    scenario_df["predicted_production_units"] = (
+        production_predictions
     )
 
-    # -----------------------------------------------------
-    # Save results
-    # -----------------------------------------------------
-
-    output_path = (
-        "data/scenario_predictions.csv"
+    scenario_df["predicted_defect_rate"] = (
+        quality_predictions
     )
 
-    results.to_csv(
-        output_path,
-        index=False,
+    # ========================================================
+    # ENERGY PER UNIT
+    # ========================================================
+
+    scenario_df["energy_per_unit"] = (
+        scenario_df["predicted_energy_kwh"]
+        /
+        scenario_df["predicted_production_units"]
+        .replace(0, 1)
     )
 
-    print("\nScenario predictions saved to:")
-    print(output_path)
+    # ========================================================
+    # PREDICTED ENERGY COST
+    # ========================================================
+
+    # Use average electricity price from dataset
+
+    average_price = (
+        df["electricity_price_inr_per_kwh"]
+        .mean()
+    )
+
+    scenario_df["predicted_energy_cost_inr"] = (
+        scenario_df["predicted_energy_kwh"]
+        * average_price
+    )
+
+    # ========================================================
+    # ROUND VALUES
+    # ========================================================
+
+    scenario_df["predicted_energy_kwh"] = (
+        scenario_df["predicted_energy_kwh"]
+        .round(3)
+    )
+
+    scenario_df["predicted_production_units"] = (
+        scenario_df["predicted_production_units"]
+        .round(2)
+    )
+
+    scenario_df["predicted_defect_rate"] = (
+        scenario_df["predicted_defect_rate"]
+        .round(6)
+    )
+
+    scenario_df["energy_per_unit"] = (
+        scenario_df["energy_per_unit"]
+        .round(5)
+    )
+
+    scenario_df["predicted_energy_cost_inr"] = (
+        scenario_df["predicted_energy_cost_inr"]
+        .round(2)
+    )
+
+    # ========================================================
+    # SAVE
+    # ========================================================
+
+    scenario_df.to_csv(
+        OUTPUT_PATH,
+        index=False
+    )
 
     print("\n" + "=" * 70)
     print("SCENARIO GENERATION COMPLETE")
     print("=" * 70)
+
+    print(
+        f"\nTotal scenarios: "
+        f"{len(scenario_df):,}"
+    )
+
+    print(
+        f"\nSaved to:\n"
+        f"{OUTPUT_PATH}"
+    )
+
+    print("\nSample scenarios:")
+
+    print(
+        scenario_df.head(10).to_string(
+            index=False
+        )
+    )
+
+    print("\n" + "=" * 70)
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+if __name__ == "__main__":
+    generate_scenarios()
