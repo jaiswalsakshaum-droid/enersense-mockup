@@ -363,6 +363,33 @@ export interface ProcessTwinResult {
   best_scenario: ProcessTwinScenario | null;
   recommendation: string;
 }
+export interface ProductionOrderCreate {
+  order_id: string;
+  factory_id: string;
+  product_id: string;
+  quantity: number;
+  deadline: string;
+  minimum_quality: number;
+  carbon_budget_kg: number;
+  priority: string;
+}
+
+export interface ProductionOrderResponse {
+  order_id: string;
+  status: string;
+}
+
+export async function createProductionOrder(
+  order: ProductionOrderCreate
+): Promise<ProductionOrderResponse> {
+  return request<ProductionOrderResponse>(
+    "/orders/",
+    {
+      method: "POST",
+      body: JSON.stringify(order),
+    }
+  );
+}
 export async function runProcessTwin(
   orderId: string
 ): Promise<ProcessTwinResult> {
