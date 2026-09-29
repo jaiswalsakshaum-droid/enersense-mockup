@@ -9,7 +9,11 @@ import {
   XCircle,
 } from "lucide-react";
 
-import { createProductionOrder, runProcessTwin } from "@/lib/api";
+import {
+  createProductionOrder,
+  runProcessTwin,
+  type ProcessTwinResult,
+} from "@/lib/api";
 import {
   AppShell,
   PageHeading,
@@ -33,7 +37,7 @@ const [carbonBudget, setCarbonBudget] = useState("15000");
   
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ProcessTwinResult | null>(null);
   const [error, setError] = useState("");
 
   async function generatePlan() {
@@ -284,8 +288,50 @@ const [carbonBudget, setCarbonBudget] = useState("15000");
             <PageHeading
               eyebrow="OPTIMIZATION RESULT"
               title="Recommended production plan"
-              description={result.recommendation}
+              description={result?.recommendation ?? ""}
             />
+
+            <section className="glass-panel mt-5 rounded-xl border border-border p-5">
+              <SectionLabel>Production requirements</SectionLabel>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Quantity
+                  </div>
+                  <div className="mt-1 font-semibold text-foreground">
+                    {quantity} units
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Minimum quality
+                  </div>
+                  <div className="mt-1 font-semibold text-foreground">
+                    {quality}%
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Carbon budget
+                  </div>
+                  <div className="mt-1 font-semibold text-foreground">
+                    {carbonBudget} kg
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Deadline
+                  </div>
+                  <div className="mt-1 font-semibold text-foreground">
+                    {deadlineDate} {deadlineTime}
+                  </div>
+                </div>
+              </div>
+            </section>
 
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               <ResultCard
