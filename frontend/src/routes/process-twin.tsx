@@ -354,36 +354,92 @@ const differenceHours = Math.round(timeDifferenceHours % 24);
               </div>
             </section>
 
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-              <ResultCard
-                icon={Zap}
-                label="Energy"
-                value={`${bestPlan.energy_kwh}`}
-                unit="kWh"
-              />
+           <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div className="glass-panel rounded-xl border border-border p-5 transition-all hover:-translate-y-0.5 hover:border-amber/40">
+    <div className="flex items-center justify-between">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-soft text-amber">
+        <Zap className="h-5 w-5" />
+      </div>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Efficiency
+      </span>
+    </div>
 
-              <ResultCard
-                icon={IndianRupee}
-                label="Production cost"
-                value={`₹${bestPlan.energy_cost_inr}`}
-                unit=""
-              />
+    <div className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+      Energy
+    </div>
 
-              <ResultCard
-                icon={Leaf}
-                label="Carbon"
-                value={`${bestPlan.carbon_kg}`}
-                unit="kg"
-              />
+    <div className="mt-1 font-display text-2xl font-semibold text-foreground">
+      {bestPlan.energy_kwh}
+      <span className="ml-1 text-sm font-medium text-muted-foreground">
+        kWh
+      </span>
+    </div>
+  </div>
 
-              <ResultCard
-                icon={Factory}
-                label="Quality"
-                value={`${bestPlan.quality_percent}`}
-                unit="%"
-              />
-            </div>
+  <div className="glass-panel rounded-xl border border-border p-5 transition-all hover:-translate-y-0.5 hover:border-amber/40">
+    <div className="flex items-center justify-between">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-soft text-amber">
+        <IndianRupee className="h-5 w-5" />
+      </div>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Cost
+      </span>
+    </div>
 
+    <div className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+      Production cost
+    </div>
+
+    <div className="mt-1 font-display text-2xl font-semibold text-foreground">
+      ₹{bestPlan.energy_cost_inr}
+    </div>
+  </div>
+
+  <div className="glass-panel rounded-xl border border-border p-5 transition-all hover:-translate-y-0.5 hover:border-amber/40">
+    <div className="flex items-center justify-between">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-soft text-amber">
+        <Leaf className="h-5 w-5" />
+      </div>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Sustainability
+      </span>
+    </div>
+
+    <div className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+      Carbon
+    </div>
+
+    <div className="mt-1 font-display text-2xl font-semibold text-foreground">
+      {bestPlan.carbon_kg}
+      <span className="ml-1 text-sm font-medium text-muted-foreground">
+        kg
+      </span>
+    </div>
+  </div>
+
+  <div className="glass-panel rounded-xl border border-border p-5 transition-all hover:-translate-y-0.5 hover:border-amber/40">
+    <div className="flex items-center justify-between">
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-soft text-amber">
+        <Factory className="h-5 w-5" />
+      </div>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Quality
+      </span>
+    </div>
+
+    <div className="mt-5 text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+      Quality score
+    </div>
+
+    <div className="mt-1 font-display text-2xl font-semibold text-foreground">
+      {bestPlan.quality_percent}
+      <span className="ml-1 text-sm font-medium text-muted-foreground">
+        %
+      </span>
+    </div>
+  </div>
+</div>
             <section className="glass-panel mt-5 rounded-xl border border-border p-6">
               <SectionLabel>Machine allocation</SectionLabel>
 
