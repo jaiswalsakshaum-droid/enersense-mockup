@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { Clock } from "lucide-react";
 import {
   Factory,
   Leaf,
@@ -72,6 +73,26 @@ const [carbonBudget, setCarbonBudget] = useState("15000");
   }
 
   const bestPlan = result?.best_scenario;
+  const completionDate = bestPlan
+  ? new Date(bestPlan.completion_time)
+  : null;
+
+const deadlineDateTime = new Date(
+  formatDeadline(deadlineDate, deadlineTime)
+);
+
+const isWithinDeadline =
+  completionDate !== null &&
+  completionDate.getTime() <= deadlineDateTime.getTime();
+
+const timeDifferenceHours = completionDate
+  ? Math.abs(
+      deadlineDateTime.getTime() - completionDate.getTime()
+    ) / (1000 * 60 * 60)
+  : 0;
+
+const differenceDays = Math.floor(timeDifferenceHours / 24);
+const differenceHours = Math.round(timeDifferenceHours % 24);
 
   return (
     <AppShell>
@@ -429,19 +450,79 @@ const [carbonBudget, setCarbonBudget] = useState("15000");
                 />
               </div>
 
-              <div className="mt-5 rounded-lg border border-border bg-panel p-4">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Expected completion
-                </div>
+             <div className="mt-5 rounded-xl border border-border bg-panel p-5">
+  <div className="flex items-center justify-between">
+    <div>
+      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Expected completion
+      </div>
 
-                <div className="mt-2 font-display text-lg font-semibold text-foreground">
-                  {bestPlan.completion_time}
-                </div>
+      <div className="mt-2 font-display text-xl font-semibold text-foreground">
+        {new Date(bestPlan.completion_time).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}
+      </div>
 
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Production duration: {bestPlan.duration_hours} hours
-                </div>
-              </div>
+      <div className="mt-1 text-sm text-muted-foreground">
+        {new Date(bestPlan.completion_time).toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
+    </div>
+
+    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <Clock size={20} />
+    </div>
+  </div>
+
+  <div className="mt-4 border-t border-border pt-3">
+    <div className="text-xs text-muted-foreground">
+      Production duration
+    </div>
+
+    <div className="mt-1 text-sm font-medium text-foreground">
+      {bestPlan.duration_hours} hours
+    </div>
+  </div>
+      <div
+  className={`mt-4 rounded-lg px-3 py-2.5 ${
+    isWithinDeadline
+      ? "bg-primary/10 text-primary"
+      : "bg-amber/10 text-amber"
+  }`}
+>
+  <div className="flex items-center gap-2 text-sm font-medium">
+    <Clock size={16} />
+
+    {isWithinDeadline
+      ? "Within deadline"
+      : "Deadline exceeded"}
+  </div>
+
+  <div className="mt-1 text-xs opacity-80">
+    {isWithinDeadline
+      ? differenceDays > 0
+        ? `Finishes ${differenceDays} day${
+            differenceDays > 1 ? "s" : ""
+          } ${
+            differenceHours > 0
+              ? `${differenceHours} hour${
+                  differenceHours > 1 ? "s" : ""
+                }`
+              : ""
+          } early`
+        : `Finishes ${differenceHours} hour${
+            differenceHours !== 1 ? "s" : ""
+          } early`
+      : `Finishes ${differenceDays > 0 ? `${differenceDays} day${differenceDays > 1 ? "s" : ""} ` : ""}${differenceHours} hour${
+          differenceHours !== 1 ? "s" : ""
+        } late`}
+  </div>
+</div>
+</div>
             </section>
           </div>
         )}
