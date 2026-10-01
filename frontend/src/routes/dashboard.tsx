@@ -77,8 +77,8 @@ function Dashboard() {
     <AppShell>
       <div className="rise-in">
         <PageHeading
-          eyebrow="Monday, 09 September 2024 · Morning shift"
-          title="Good morning, Rohan"
+          eyebrow="PLANT OPERATIONS · LIVE"
+          title="Good morning"
           description={`Here’s the operating pulse for ${data.plant_name}.`}
           action={
             <Button variant="outline" className="gap-2 border-border bg-panel">
