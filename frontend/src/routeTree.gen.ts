@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuditRouteImport } from './routes/audit'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ProcessTwinRouteImport } from './routes/process-twin'
 import { Route as SimulateRouteImport } from './routes/simulate'
@@ -31,6 +32,11 @@ const AlertsRoute = AlertsRouteImport.update({
 const AuditRoute = AuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/process-twin': typeof ProcessTwinRoute
   '/simulate': typeof SimulateRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/process-twin': typeof ProcessTwinRoute
   '/simulate': typeof SimulateRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/alerts': typeof AlertsRoute
   '/audit': typeof AuditRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/process-twin': typeof ProcessTwinRoute
   '/simulate': typeof SimulateRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/audit'
+    | '/auth'
     | '/dashboard'
     | '/process-twin'
     | '/simulate'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/audit'
+    | '/auth'
     | '/dashboard'
     | '/process-twin'
     | '/simulate'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/alerts'
     | '/audit'
+    | '/auth'
     | '/dashboard'
     | '/process-twin'
     | '/simulate'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AlertsRoute: typeof AlertsRoute
   AuditRoute: typeof AuditRoute
+  AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   ProcessTwinRoute: typeof ProcessTwinRoute
   SimulateRoute: typeof SimulateRoute
@@ -155,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/audit'
       fullPath: '/audit'
       preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -199,6 +219,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AlertsRoute: AlertsRoute,
   AuditRoute: AuditRoute,
+  AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   ProcessTwinRoute: ProcessTwinRoute,
   SimulateRoute: SimulateRoute,
