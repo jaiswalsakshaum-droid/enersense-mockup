@@ -43,7 +43,7 @@ function SimulatorPage() {
 
   // Trigger calculation on parameters change or initial load
   const triggerSimulation = (type = interventionType) => {
-    let params: Record<string, any> = { baseline_kwh: 72000 };
+    let params: Record<string, any> = {};
     if (type === "load_shift") {
       params = {
         ...params,
@@ -60,14 +60,12 @@ function SimulatorPage() {
         efficiency_gain_pct: Number(efficiencyGainPct),
         capex_inr: Number(equipmentCapex),
         operating_hours_per_day: 16,
-        avg_tariff_inr: 8.5,
       };
     } else if (type === "process_change") {
       params = {
         ...params,
         leak_count: Number(leakCount),
         repair_capex_inr: Number(repairCapex),
-        avg_tariff_inr: 8.5,
       };
     }
 
@@ -312,10 +310,23 @@ function SimulatorPage() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Monthly Energy Reduction</div>
-                      <div className="mt-1 font-display text-2xl font-semibold text-foreground">
-                        {result.kwh_saved_monthly > 0 ? `${result.kwh_saved_monthly.toLocaleString("en-IN")} kWh` : "Tariff Delta"}
+                      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                      {result.kwh_saved_monthly > 0
+                        ? "Monthly Energy Reduction"
+                        : "Energy Impact"}
+                    </div>
+
+                    <div className="mt-1 font-display text-2xl font-semibold text-foreground">
+                      {result.kwh_saved_monthly > 0
+                        ? `${result.kwh_saved_monthly.toLocaleString("en-IN")} kWh`
+                        : "0 kWh"}
+                    </div>
+
+                    {result.kwh_saved_monthly === 0 && (
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Tariff shift only
                       </div>
+                    )}
                     </div>
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">CO₂ Avoided</div>
@@ -365,8 +376,8 @@ function SimulatorPage() {
                       Ready to implement this recommendation?
                     </h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Check government scheme eligibility to co-fund up to 35% of capex.
-                    </p>
+                    Check available government energy-efficiency schemes for this intervention.
+                  </p>
                   </div>
                   <Link to="/audit">
                     <Button variant="outline" className="gap-2 border-border bg-panel text-xs">

@@ -91,8 +91,18 @@ function Audit() {
               <div>
                 <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Avg. payback</div>
                 <div className="mt-1 font-display text-xl font-semibold text-foreground">
-                  3.8 <span className="text-xs font-normal text-muted-foreground">months</span>
-                </div>
+  {recommendations && recommendations.length > 0
+    ? (
+        recommendations
+          .filter((r) => r.payback_months > 0 && r.payback_months < 999)
+          .reduce((sum, r) => sum + r.payback_months, 0) /
+        recommendations.filter(
+          (r) => r.payback_months > 0 && r.payback_months < 999
+        ).length
+      ).toFixed(1)
+    : "—"}
+  <span className="text-xs font-normal text-muted-foreground"> months</span>
+</div>
               </div>
             </div>
           </div>
@@ -104,16 +114,20 @@ function Audit() {
                 <CheckCircle2 className="h-5 w-5" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-foreground">1 of 4 actions underway</div>
-                <div className="mt-1 text-xs text-muted-foreground">Keep the momentum going</div>
+                <div className="text-sm font-semibold text-foreground">
+  {recommendations?.length ?? 0} opportunities identified
+</div>
+<div className="mt-1 text-xs text-muted-foreground">
+  Based on recent machine telemetry
+</div>
               </div>
             </div>
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-secondary">
-              <div className="h-full w-1/4 rounded-full bg-teal" />
+              <div className="h-full w-full rounded-full bg-teal" />
             </div>
             <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-              <span>25% complete</span>
-              <span>Last updated today</span>
+              <span>Scan complete</span>
+<span>Telemetry-based</span>
             </div>
           </div>
         </div>
@@ -156,7 +170,9 @@ function Audit() {
                   key={item.rank}
                   className="group grid gap-5 rounded-xl border border-border bg-panel p-5 transition-colors hover:border-amber/40 sm:grid-cols-[42px_1fr_200px_120px_24px] sm:items-center"
                 >
-                  <div className="font-display text-lg font-semibold text-muted-foreground/60">{item.rank}</div>
+                  <div className="font-display text-lg font-semibold text-muted-foreground/60">
+  {String(index + 1).padStart(2, "0")}
+</div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
@@ -204,8 +220,8 @@ function Audit() {
               </p>
             </div>
             <div className="rounded-full border border-teal/30 bg-teal-soft px-3 py-1 text-xs font-semibold text-teal">
-              4 Schemes Available
-            </div>
+  {schemes?.length ?? 0} Schemes Available
+</div>
           </div>
 
           {schemesLoading && (
