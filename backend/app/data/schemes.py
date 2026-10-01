@@ -1,54 +1,116 @@
 SCHEMES_DATA = [
     {
         "id": "bee-pat-sme",
-        "title": "BEE PAT Scheme — MSME Cluster Window",
+        "title": "BEE Perform, Achieve and Trade (PAT)",
         "organization": "Bureau of Energy Efficiency (BEE), Ministry of Power",
-        "category": "National Compliance & Tradable ESCerts",
-        "eligible_industries": ["foundry", "textile", "ceramics", "chemicals", "all"],
-        "incentive": "Earn Energy Saving Certificates (ESCerts) tradeable on IEX at ~₹1,840/MWh saved above baseline.",
-        "max_benefit_inr": "₹12.5 Lakhs / yr in ESCerts",
-        "eligibility_summary": "Designated consumers or SME clusters with energy consumption above 1,000 toe/year or connected load > 250 kW.",
-        "deadline": "Rolling Phase VI Compliance cycle",
-        "status": "Active",
-        "action_url": "https://beeindia.gov.in/en/programmes/perform-achieve-and-trade-pat",
+        "category": "National Energy Efficiency Programme",
+        "eligible_industries": [
+            "foundry",
+            "textile",
+            "ceramics",
+            "chemicals",
+            "all",
+        ],
+        "incentive": (
+            "Energy-efficiency mechanism for eligible Designated Consumers, "
+            "with verified energy savings potentially resulting in Energy "
+            "Savings Certificates (ESCerts)."
+        ),
+        "max_benefit_inr": (
+            "Depends on verified energy savings and ESCert trading"
+        ),
+        "eligibility_summary": (
+            "Applies to notified energy-intensive sectors and eligible "
+            "Designated Consumers subject to applicable requirements."
+        ),
+        "deadline": "Check current PAT cycle requirements",
+        "status": "Check current BEE requirements",
+        "action_url": "https://www.beeindia.gov.in/",
     },
+
     {
-        "id": "geda-subsidy-vfd",
-        "title": "GEDA Industrial Energy Conservation Subsidy",
+        "id": "geda-energy-audit",
+        "title": "GEDA Energy Audit Subsidy Scheme",
         "organization": "Gujarat Energy Development Agency (GEDA)",
-        "category": "State Capital Subsidy",
-        "eligible_industries": ["foundry", "machining", "ceramics", "textile", "all"],
-        "incentive": "35% capital subsidy up to ₹5,00,000 on purchase of VFDs, IE4 energy-efficient motors, and waste heat recovery systems.",
-        "max_benefit_inr": "₹5,00,000 direct subsidy",
-        "eligibility_summary": "MSME manufacturing units registered in Gujarat with active Udyam registration and past energy audit.",
-        "deadline": "31 March 2025",
-        "status": "Open Window",
-        "action_url": "https://geda.gujarat.gov.in",
+        "category": "State Energy Efficiency Support",
+        "eligible_industries": [
+            "foundry",
+            "metal-processing",
+            "re-rolling",
+            "all",
+        ],
+        "incentive": (
+            "Support for eligible MSMEs undertaking energy audits and "
+            "identifying energy-efficiency opportunities."
+        ),
+        "max_benefit_inr": (
+            "Scheme-specific support; check current GEDA terms"
+        ),
+        "eligibility_summary": (
+            "The documented scheme covers eligible MSMEs in metal-processing, "
+            "re-rolling and foundry sectors subject to applicable criteria."
+        ),
+        "deadline": "Check current GEDA availability",
+        "status": "Check current availability",
+        "action_url": "https://geda.gujarat.gov.in/",
     },
+
     {
         "id": "sidbi-4e-financing",
-        "title": "SIDBI 4E Scheme (End-to-End Energy Efficiency)",
+        "title": "SIDBI 4E Scheme — End-to-End Energy Efficiency",
         "organization": "SIDBI (Small Industries Development Bank of India)",
-        "category": "Concessional Green Financing",
-        "eligible_industries": ["foundry", "textile", "chemicals", "food-processing", "all"],
-        "incentive": "Concessional term loans at 7.25% p.a. covering up to 90% of energy audit recommended capex projects.",
-        "max_benefit_inr": "Up to ₹1.50 Crore per unit",
-        "eligibility_summary": "Units operating for min 3 years with investment grade rating and verified energy audit savings > 10%.",
-        "deadline": "Year-round rolling window",
-        "status": "Active",
-        "action_url": "https://www.sidbi.in/en/schemes/4e-financing",
+        "category": "Energy Efficiency Financing",
+        "eligible_industries": [
+            "foundry",
+            "textile",
+            "chemicals",
+            "food-processing",
+            "all",
+        ],
+        "incentive": (
+            "Financing support for energy-efficiency and renewable-energy "
+            "investments in eligible MSMEs."
+        ),
+        "max_benefit_inr": (
+            "Scheme-specific financing; check current SIDBI terms"
+        ),
+        "eligibility_summary": (
+            "SIDBI's 4E framework supports energy-efficiency and renewable-"
+            "energy investments for eligible existing MSMEs."
+        ),
+        "deadline": "Check current SIDBI terms",
+        "status": "Check current availability",
+       "action_url": "https://www.sidbi.in/en/index",
     },
+
     {
-        "id": "ueep-msme-grant",
-        "title": "UNIDO-BEE SME Energy Efficiency Programme (UEEP)",
-        "organization": "UNIDO & Ministry of MSME",
-        "category": "Technical Assistance & Co-funding",
-        "eligible_industries": ["foundry", "ceramics", "brass", "brick-kiln"],
-        "incentive": "Free investment-grade energy audit + 50% co-funding for IoT smart metering & energy telemetry installation.",
-        "max_benefit_inr": "₹2,50,000 grant + Free IoT kits",
-        "eligibility_summary": "Foundry and casting units in Rajkot, Coimbatore, and Belgaum clusters.",
-        "deadline": "30 November 2024",
-        "status": "Active",
-        "action_url": "https://sameeedo.org",
-    },
+    "id": "bee-sme-programme",
+    "title": "BEE – Small Medium Enterprises (SME) Programme",
+    "organization": "Bureau of Energy Efficiency (BEE), Ministry of Power",
+    "category": "MSME Energy Efficiency Programme",
+    "eligible_industries": [
+        "foundry",
+        "ceramics",
+        "brass",
+        "dairy",
+        "all"
+    ],
+    "incentive": (
+        "Supports energy-efficiency improvement in MSMEs through "
+        "capacity building, technology demonstrations, energy audits, "
+        "knowledge sharing and technology adoption support."
+    ),
+    "max_benefit_inr": (
+        "Programme support is project- and intervention-specific"
+    ),
+    "eligibility_summary": (
+        "The programme focuses on improving energy efficiency in "
+        "Indian micro, small and medium enterprises through technical "
+        "assistance, capacity building and adoption of efficient technologies."
+    ),
+    "deadline": "Check current BEE programme information",
+    "status": "Programme information",
+    "action_url": "https://saathee.beeindia.gov.in/sme-programme/",
+},
+
 ]
