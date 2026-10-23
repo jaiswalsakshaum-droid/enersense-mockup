@@ -69,3 +69,18 @@ async def root():
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=4000, reload=True)
+
+@app.get("/api/health")
+def health_check():
+    from app.database.connection import get_connection
+
+    try:
+        conn = get_connection()
+        conn.close()
+        return {"status": "healthy", "database": "connected"}
+    except Exception:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=503,
+            detail={"status": "unhealthy", "database": "disconnected"},
+        )
