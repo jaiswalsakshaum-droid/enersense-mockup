@@ -7,6 +7,7 @@ from app.routers.optimization import router as optimization_router
 from app.routers.plans import router as plans_router
 from app.routers.plans_get import router as plans_get_router
 from app.routers.ml import router as ml_router
+from app.auth.router import router as auth_router
 
 from app.routers import (
     machines_router,
@@ -56,7 +57,7 @@ app.include_router(optimization_router)
 app.include_router(plans_router)
 app.include_router(plans_get_router)
 app.include_router(ml_router)
-
+app.include_router(auth_router)
 @app.get("/")
 async def root():
     return {
