@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
   ArrowRight,
   BarChart3,
@@ -23,6 +23,9 @@ import { LogoMark } from "@/components/enersense";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    throw redirect({ to: "/auth" });
+  },
   head: () => ({
     meta: [
       {

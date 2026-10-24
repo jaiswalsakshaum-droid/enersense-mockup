@@ -28,18 +28,68 @@ export const Route = createFileRoute("/auth")({
 
 function LoginPage() {
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+ const [email, setEmail] = useState("");
+ const [password, setPassword] = useState("");
+ const [showPassword, setShowPassword] = useState(false);
+ const [message, setMessage] = useState("");
+ const [isLoading, setIsLoading] = useState(false);
+  
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMessage(
-      "The login interface is ready, but authentication has not been connected yet.",
-    );
+
+    if (isLoading) return;
+
+    setIsLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:4000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password,
+          }),
+        },
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const detail = data.detail;
+
+        const errorMessage =
+          typeof detail === "string"
+            ? detail
+            : response.status === 401
+              ? "Invalid email or password."
+              : "Unable to sign in. Please try again.";
+
+        setMessage(errorMessage);
+        return;
+      }
+
+      if (typeof data.access_token !== "string" || !data.access_token) {
+        setMessage("The server response did not contain an access token.");
+        return;
+      }
+
+      localStorage.setItem("enersense_access_token", data.access_token);
+
+      await navigate({ to: "/dashboard" });
+    } catch {
+      setMessage(
+        "Unable to connect to the server. Check that the backend is running.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
+
 
   return (
     <main className="industrial-grid relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -221,13 +271,16 @@ function LoginPage() {
                 </p>
               )}
 
-              <button
-                type="submit"
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-amber px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-amber/90"
-              >
-                Sign in
-                <ArrowRight className="h-4 w-4" />
-              </button>
+              
+<button
+  type="submit"
+  disabled={isLoading}
+  className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-amber px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-amber/90 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {isLoading ? "Signing in..." : "Sign in"}
+  {!isLoading && <ArrowRight className="h-4 w-4" />}
+</button>
+ 
             </form>
 
             <div className="mt-6 flex items-start gap-2 border-t border-border pt-5">

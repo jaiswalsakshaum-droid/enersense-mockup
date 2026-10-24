@@ -1,4 +1,4 @@
- import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   Activity,
   AlertTriangle,
@@ -17,6 +17,7 @@ import {
   Globe,
   Leaf,
   Lightbulb,
+  LogOut,
   Menu,
   MoreHorizontal,
   Settings2,
@@ -35,6 +36,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { type Machine, type MachineStatus } from "@/lib/api";
+import { clearSession } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 
 export const navItems = [
@@ -67,6 +69,7 @@ export function LogoMark() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { language, setLanguage, t } = useTranslation();
   const [open, setOpen] = useState(false);
   const currentPath = location.pathname;
@@ -149,7 +152,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Bell className="h-[18px] w-[18px]" />
                   <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-critical" />
                 </Button>
-              </Link>
+                </Link>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="gap-2 border-border bg-panel"
+                  onClick={() => {
+                    clearSession();
+                    void navigate({ to: "/auth", replace: true });
+                  }}
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">Sign out</span>
+                </Button>
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-soft text-xs font-semibold text-teal">RS</div>
             </div>
           </header>
