@@ -80,6 +80,9 @@ def get_current_user(
     }
 
 
+authenticated = [Depends(get_current_user)]
+
+
 @router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest):
     user = authenticate_user(request.email, request.password)

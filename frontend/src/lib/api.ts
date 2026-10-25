@@ -3,7 +3,14 @@
  * Typed fetch wrappers for all FastAPI endpoints.
  */
 
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:4000/api";
+import { API_BASE_URL, getAccessToken } from "@/lib/auth";
+
+export function getAuthHeaders(): Headers {
+  const headers = new Headers();
+  const token = getAccessToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  return headers;
+}
 
 export type MachineStatus = "Normal" | "Warning" | "Critical";
 
@@ -209,13 +216,14 @@ export interface LiveStreamPayload {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE}${path}`;
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+  const headers = new Headers(options?.headers);
+  headers.set("Content-Type", "application/json");
+  const token = getAccessToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
+    headers,
   });
 
   if (!res.ok) {
@@ -262,7 +270,7 @@ export async function fetchSchemes(industryType?: string, monthlyConsumption?: n
 }
 
 export function getLiveStreamUrl(machineId: string): string {
-  return `${API_BASE}/stream/live?machine_id=${encodeURIComponent(machineId)}`;
+  return `${API_BASE_URL}/stream/live?machine_id=${encodeURIComponent(machineId)}`;
 }
 export interface MachineHealthInfo {
   score: number;

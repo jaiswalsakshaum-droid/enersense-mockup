@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AppShell, MiniSparkline, PageHeading, Readout, SectionLabel, StatusBadge, TrendChart } from "@/components/enersense";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchMachineDetail, getLiveStreamUrl, type LiveStreamPayload, type MachineStatus } from "@/lib/api";
+import { fetchMachineDetail, getAuthHeaders, getLiveStreamUrl, type LiveStreamPayload, type MachineStatus } from "@/lib/api";
 import { useTranslation } from "@/lib/i18n";
 
 export const Route = createFileRoute("/machines/$id")({
@@ -56,51 +56,73 @@ function MachineDetail() {
   // Subscribe to SSE Live Telemetry Stream
   useEffect(() => {
     if (!id) return;
+    const controller = new AbortController();
     const url = getLiveStreamUrl(id);
-    let eventSource: EventSource | null = null;
+    let active = true;
 
-    try {
-      eventSource = new EventSource(url);
+    async function connectToStream() {
+      try {
+        const response = await fetch(url, {
+          headers: getAuthHeaders(),
+          signal: controller.signal,
+        });
 
-      eventSource.onopen = () => {
-        setIsStreaming(true);
-      };
-
-      eventSource.onmessage = (event) => {
-        try {
-          const payload: LiveStreamPayload = JSON.parse(event.data);
-          if (payload) {
-            setLivePower(payload.power_kw);
-            setLiveTemp(payload.temperature_c);
-            setLiveVibe(payload.vibration_mms);
-            setLiveScore(payload.score);
-            setLiveStatus(payload.status);
-            setLastStreamTime(payload.timestamp);
-            setIsStreaming(true);
-
-            // Append new reading to live trend
-            setLiveTrend((prev) => {
-              const updated = [...prev.slice(1), payload.power_kw];
-              return updated;
-            });
-          }
-        } catch (err) {
-          console.error("Error parsing SSE live telemetry frame", err);
+        if (!response.ok) {
+          throw new Error(`Live telemetry request failed (${response.status}).`);
         }
-      };
+        if (!response.body) {
+          throw new Error("The browser does not support streaming telemetry.");
+        }
 
-      eventSource.onerror = () => {
-        setIsStreaming(false);
-      };
-    } catch (err) {
-      console.warn("EventSource connection error", err);
-      setIsStreaming(false);
+        setIsStreaming(true);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (active) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const frames = buffer.split(/\r?\n\r?\n/);
+          buffer = frames.pop() ?? "";
+
+          for (const frame of frames) {
+            const eventData = frame
+              .split(/\r?\n/)
+              .filter((line) => line.startsWith("data:"))
+              .map((line) => line.slice(5).trimStart())
+              .join("\n");
+            if (!eventData) continue;
+
+            try {
+              const payload = JSON.parse(eventData) as LiveStreamPayload & { error?: string };
+              if (payload.error) throw new Error(payload.error);
+              setLivePower(payload.power_kw);
+              setLiveTemp(payload.temperature_c);
+              setLiveVibe(payload.vibration_mms);
+              setLiveScore(payload.score);
+              setLiveStatus(payload.status);
+              setLastStreamTime(payload.timestamp);
+              setIsStreaming(true);
+              setLiveTrend((previous) => [...previous.slice(1), payload.power_kw]);
+            } catch (error) {
+              console.error("Error parsing SSE live telemetry frame", error);
+            }
+          }
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.warn("Live telemetry stream error", error);
+          setIsStreaming(false);
+        }
+      }
     }
 
+    void connectToStream();
     return () => {
-      if (eventSource) {
-        eventSource.close();
-      }
+      active = false;
+      controller.abort();
     };
   }, [id]);
 

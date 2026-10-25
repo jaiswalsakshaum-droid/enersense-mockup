@@ -7,7 +7,7 @@ from app.routers.optimization import router as optimization_router
 from app.routers.plans import router as plans_router
 from app.routers.plans_get import router as plans_get_router
 from app.routers.ml import router as ml_router
-from app.auth.router import router as auth_router
+from app.auth.router import authenticated, router as auth_router
 
 from app.routers import (
     machines_router,
@@ -44,19 +44,19 @@ app.add_middleware(
 )
 
 # Register API Routers under /api
-app.include_router(machines_router, prefix="/api")
-app.include_router(dashboard_router, prefix="/api")
-app.include_router(alerts_router, prefix="/api")
-app.include_router(recommendations_router, prefix="/api")
-app.include_router(simulate_router, prefix="/api")
-app.include_router(schemes_router, prefix="/api")
-app.include_router(stream_router, prefix="/api")
-app.include_router(orders_router)
-app.include_router(process_twin_router)
-app.include_router(optimization_router)
-app.include_router(plans_router)
-app.include_router(plans_get_router)
-app.include_router(ml_router)
+app.include_router(machines_router, prefix="/api", dependencies=authenticated)
+app.include_router(dashboard_router, prefix="/api", dependencies=authenticated)
+app.include_router(alerts_router, prefix="/api", dependencies=authenticated)
+app.include_router(recommendations_router, prefix="/api", dependencies=authenticated)
+app.include_router(simulate_router, prefix="/api", dependencies=authenticated)
+app.include_router(schemes_router, prefix="/api", dependencies=authenticated)
+app.include_router(stream_router, prefix="/api", dependencies=authenticated)
+app.include_router(orders_router, dependencies=authenticated)
+app.include_router(process_twin_router, dependencies=authenticated)
+app.include_router(optimization_router, dependencies=authenticated)
+app.include_router(plans_router, dependencies=authenticated)
+app.include_router(plans_get_router, dependencies=authenticated)
+app.include_router(ml_router, dependencies=authenticated)
 app.include_router(auth_router)
 @app.get("/")
 async def root():

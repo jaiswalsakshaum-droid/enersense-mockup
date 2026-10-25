@@ -1,6 +1,7 @@
 
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { API_BASE_URL, saveSession } from "@/lib/auth";
 import {
   ArrowLeft,
   ArrowRight,
@@ -43,9 +44,7 @@ function LoginPage() {
     setMessage("");
 
     try {
-      const response = await fetch(
-        "http://localhost:4000/api/auth/login",
-        {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -54,8 +53,7 @@ function LoginPage() {
             email: email.trim(),
             password,
           }),
-        },
-      );
+      });
 
       const data = await response.json().catch(() => ({}));
 
@@ -78,7 +76,7 @@ function LoginPage() {
         return;
       }
 
-      localStorage.setItem("enersense_access_token", data.access_token);
+      saveSession(data.access_token);
 
       await navigate({ to: "/dashboard" });
     } catch {
