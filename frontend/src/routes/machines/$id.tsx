@@ -434,7 +434,7 @@ function MachineDetail() {
   );
 }
 
-function TimelineItem({ date, title, detail, active }: { date: string; title: string; detail: string; active?: boolean }) {
+function TimelineItem({ date, title, detail, active }: { date: string; title: string; detail: string; active?: boolean | undefined }) {
   return (
     <div className="relative flex gap-3 pl-1">
       <div className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${active ? "bg-teal" : "bg-muted-foreground/50"}`} />

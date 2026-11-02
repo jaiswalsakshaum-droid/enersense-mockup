@@ -147,7 +147,7 @@ export type InterventionType = "load_shift" | "equipment_upgrade" | "process_cha
 
 export interface SimulateRequest {
   intervention_type: InterventionType;
-  params?: Record<string, any>;
+  params?: Record<string, unknown>;
 }
 
 export interface SimulateResponse {
@@ -164,7 +164,7 @@ export interface SimulateResponse {
   payback_months: number;
   co2_reduction_tons_per_year: number;
   summary: string;
-  breakdown: Record<string, any>;
+  breakdown: Record<string, unknown>;
 }
 export interface OptimizationScenario {
   machine_allocations: {

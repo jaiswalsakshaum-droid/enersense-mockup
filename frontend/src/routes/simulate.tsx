@@ -43,7 +43,7 @@ function SimulatorPage() {
 
   // Trigger calculation on parameters change or initial load
   const triggerSimulation = (type = interventionType) => {
-    let params: Record<string, any> = {};
+    let params: Record<string, unknown> = {};
     if (type === "load_shift") {
       params = {
         ...params,
