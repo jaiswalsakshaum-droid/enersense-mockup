@@ -1,9 +1,12 @@
 import json
+import os
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+from dotenv import load_dotenv
 
+load_dotenv()
 
-ML_ENGINE_URL = "http://127.0.0.1:8000"
+ML_ENGINE_URL = os.getenv("ML_ENGINE_URL", "http://127.0.0.1:8000").rstrip("/")
 
 
 def call_ml_engine(endpoint: str, payload: dict):

@@ -33,6 +33,7 @@ enersense-mockup-main/
 ### 1. Backend Service (FastAPI)
 
 Runs on **port 4000** with interactive OpenAPI docs available at `http://localhost:4000/docs`.
+PostgreSQL is required for telemetry, orders, and login.
 
 ```bash
 # Navigate to backend directory
@@ -50,9 +51,31 @@ python -m venv venv
 # Install dependencies
 pip install -r requirements.txt
 
+# Configure PostgreSQL and JWT signing (copy the template, then edit values)
+# PowerShell:
+Copy-Item .env.example .env
+# macOS / Linux:
+cp .env.example .env
+
+# Create the database, then run these from the backend directory
+createdb enersense
+psql -d enersense -f app/database/schema.sql
+python -m app.data.seed
+psql -d enersense -f app/database/002_database_improvements.sql
+psql -d enersense -f app/database/003_machine_availability.sql
+psql -d enersense -f app/database/004_telemetry_history.sql
+
+# Create the first login account
+python -m app.auth.create_admin
+
 # Start FastAPI dev server with hot reload
 uvicorn main:app --reload --port 4000
 ```
+
+Apply the numbered SQL migrations once, in order. The admin creation command
+prompts for the email, name, and password; passwords must be at least 12
+characters. Set `JWT_SECRET` in `.env` to a unique random value.
+Set `ML_ENGINE_URL` in the backend `.env` if the ML service is hosted elsewhere.
 
 ### 2. Frontend Web App (TanStack Start + React 19)
 
@@ -61,6 +84,11 @@ Runs on **port 5173** (or the next available port) and communicates with the bac
 ```bash
 # Navigate to frontend directory
 cd frontend
+
+# Optional: copy the frontend API URL template (PowerShell)
+Copy-Item .env.example .env
+# macOS / Linux:
+cp .env.example .env
 
 # Install dependencies (using bun or npm)
 bun install
@@ -71,7 +99,16 @@ bun run dev
 # or: npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5173/auth](http://localhost:5173/auth) in your browser.
+The root route redirects to the login page. Set `VITE_API_BASE_URL` if the
+backend API is not at the default `http://localhost:4000/api`.
+
+### 3. ML Engine
+
+The ML Engine runs separately on **port 8000** and is required by the backend's
+`/api/ml/*` endpoints. Follow [ml-engine/README.md](ml-engine/README.md) to
+install its dependencies, train its models, generate runtime reports, and start
+the service.
 
 ---
 
