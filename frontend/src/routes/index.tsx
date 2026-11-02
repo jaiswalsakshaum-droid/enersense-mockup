@@ -125,15 +125,13 @@ function HomePage() {
                 </div>
 
                 <h1 className="max-w-4xl font-display text-5xl font-semibold leading-[1.02] tracking-[-0.055em] text-foreground sm:text-6xl lg:text-7xl xl:text-[82px]">
-                  Turn factory data into{" "}
-                  <span className="text-amber">better decisions.</span>
+                  Turn factory data into <span className="text-amber">better decisions.</span>
                 </h1>
 
                 <p className="mt-8 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
-                  EnerSense is an industrial intelligence platform designed to
-                  help manufacturing teams understand where energy is being
-                  consumed, identify machine-level problems, and make more
-                  informed production decisions.
+                  EnerSense is an industrial intelligence platform designed to help manufacturing
+                  teams understand where energy is being consumed, identify machine-level problems,
+                  and make more informed production decisions.
                 </p>
 
                 <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -155,11 +153,7 @@ function HomePage() {
                 </div>
 
                 <div className="mt-12 flex flex-wrap gap-x-8 gap-y-4 border-t border-border pt-7">
-                  <HeroPoint
-                    icon={Zap}
-                    title="Energy"
-                    description="Understand consumption"
-                  />
+                  <HeroPoint icon={Zap} title="Energy" description="Understand consumption" />
 
                   <HeroPoint
                     icon={MonitorCog}
@@ -231,14 +225,11 @@ function HomePage() {
                       </div>
 
                       <div>
-                        <div className="font-semibold">
-                          From observation to action
-                        </div>
+                        <div className="font-semibold">From observation to action</div>
 
                         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                          EnerSense connects energy, equipment and production
-                          information so teams can move from raw operational
-                          data toward actionable decisions.
+                          EnerSense connects energy, equipment and production information so teams
+                          can move from raw operational data toward actionable decisions.
                         </p>
                       </div>
                     </div>
@@ -253,10 +244,7 @@ function HomePage() {
             PROBLEM
         ========================================================== */}
 
-        <section
-          id="problem"
-          className="border-b border-border bg-background"
-        >
+        <section id="problem" className="border-b border-border bg-background">
           <div className="mx-auto max-w-[1500px] px-6 py-24 sm:px-10 lg:px-14 lg:py-32">
             <div className="max-w-3xl">
               <SectionEyebrow>THE PROBLEM</SectionEyebrow>
@@ -266,10 +254,9 @@ function HomePage() {
               </h2>
 
               <p className="mt-7 text-lg leading-8 text-muted-foreground">
-                A factory can collect large amounts of operational information
-                without turning that information into useful decisions. Energy
-                consumption, machine behavior and production constraints are
-                often looked at separately.
+                A factory can collect large amounts of operational information without turning that
+                information into useful decisions. Energy consumption, machine behavior and
+                production constraints are often looked at separately.
               </p>
             </div>
 
@@ -309,10 +296,7 @@ function HomePage() {
             SOLUTION
         ========================================================== */}
 
-        <section
-          id="solution"
-          className="industrial-grid border-b border-border"
-        >
+        <section id="solution" className="industrial-grid border-b border-border">
           <div className="mx-auto max-w-[1500px] px-6 py-24 sm:px-10 lg:px-14 lg:py-32">
             <div className="grid gap-16 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-24">
               <div>
@@ -323,11 +307,10 @@ function HomePage() {
                 </h2>
 
                 <p className="mt-7 text-lg leading-8 text-muted-foreground">
-                  EnerSense brings multiple parts of factory operations into a
-                  connected intelligence layer. Instead of looking at isolated
-                  measurements, the platform helps users understand the
-                  relationship between energy behavior, equipment condition and
-                  production decisions.
+                  EnerSense brings multiple parts of factory operations into a connected
+                  intelligence layer. Instead of looking at isolated measurements, the platform
+                  helps users understand the relationship between energy behavior, equipment
+                  condition and production decisions.
                 </p>
 
                 <div className="mt-8 rounded-xl border border-teal/20 bg-teal/5 p-6">
@@ -337,14 +320,11 @@ function HomePage() {
                     </div>
 
                     <div>
-                      <h3 className="font-semibold">
-                        Decision support, not just dashboards
-                      </h3>
+                      <h3 className="font-semibold">Decision support, not just dashboards</h3>
 
                       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                        The goal is to help users understand what is happening,
-                        why it may matter, and what production option can be
-                        evaluated next.
+                        The goal is to help users understand what is happening, why it may matter,
+                        and what production option can be evaluated next.
                       </p>
                     </div>
                   </div>
@@ -394,8 +374,8 @@ function HomePage() {
               </h2>
 
               <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                Each part of the platform focuses on a different stage of the
-                manufacturing decision process.
+                Each part of the platform focuses on a different stage of the manufacturing decision
+                process.
               </p>
             </div>
 
@@ -457,10 +437,9 @@ function HomePage() {
                 </h2>
 
                 <p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground">
-                  Machine health is not about looking at a single number. A
-                  clearer equipment picture can come from combining multiple
-                  operating signals and understanding how they behave relative
-                  to expected conditions.
+                  Machine health is not about looking at a single number. A clearer equipment
+                  picture can come from combining multiple operating signals and understanding how
+                  they behave relative to expected conditions.
                 </p>
 
                 <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -545,10 +524,9 @@ function HomePage() {
                   </h2>
 
                   <p className="mt-7 max-w-2xl text-lg leading-8 text-muted-foreground">
-                    ProcessTwin AI is the production intelligence component of
-                    EnerSense. It evaluates possible machine allocations for a
-                    production order and checks them against the constraints
-                    defined for that order.
+                    ProcessTwin AI is the production intelligence component of EnerSense. It
+                    evaluates possible machine allocations for a production order and checks them
+                    against the constraints defined for that order.
                   </p>
 
                   <div className="mt-9 grid gap-4 sm:grid-cols-2">
@@ -650,10 +628,9 @@ function HomePage() {
               </h2>
 
               <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                The platform is designed around a practical operating
-                workflow. Start with understanding the plant, move toward
-                identifying conditions that matter, and then evaluate the
-                production decisions that follow.
+                The platform is designed around a practical operating workflow. Start with
+                understanding the plant, move toward identifying conditions that matter, and then
+                evaluate the production decisions that follow.
               </p>
             </div>
 
@@ -700,8 +677,7 @@ function HomePage() {
                 <SectionEyebrow>WHY ENERSENSE</SectionEyebrow>
 
                 <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-                  Move from isolated information to connected operational
-                  intelligence.
+                  Move from isolated information to connected operational intelligence.
                 </h2>
               </div>
 
@@ -754,9 +730,8 @@ function HomePage() {
               </h2>
 
               <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-muted-foreground">
-                Explore the EnerSense workspace or open ProcessTwin AI to
-                understand how the platform turns operational information into
-                production intelligence.
+                Explore the EnerSense workspace or open ProcessTwin AI to understand how the
+                platform turns operational information into production intelligence.
               </p>
 
               <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
@@ -792,44 +767,29 @@ function HomePage() {
             <LogoMark />
 
             <p className="mt-3 max-w-md text-xs leading-5 text-muted-foreground">
-              Industrial energy and production intelligence for understanding
-              factory operations and supporting better decisions.
+              Industrial energy and production intelligence for understanding factory operations and
+              supporting better decisions.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-x-7 gap-y-3 text-xs text-muted-foreground">
-            <a
-              href="#problem"
-              className="transition-colors hover:text-foreground"
-            >
+            <a href="#problem" className="transition-colors hover:text-foreground">
               Problem
             </a>
 
-            <a
-              href="#solution"
-              className="transition-colors hover:text-foreground"
-            >
+            <a href="#solution" className="transition-colors hover:text-foreground">
               Solution
             </a>
 
-            <a
-              href="#features"
-              className="transition-colors hover:text-foreground"
-            >
+            <a href="#features" className="transition-colors hover:text-foreground">
               Features
             </a>
 
-            <a
-              href="#processtwin"
-              className="transition-colors hover:text-foreground"
-            >
+            <a href="#processtwin" className="transition-colors hover:text-foreground">
               ProcessTwin AI
             </a>
 
-            <Link
-              to="/dashboard"
-              className="transition-colors hover:text-foreground"
-            >
+            <Link to="/dashboard" className="transition-colors hover:text-foreground">
               Dashboard
             </Link>
           </div>
@@ -845,9 +805,7 @@ function HomePage() {
 
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">
-      {children}
-    </div>
+    <div className="text-xs font-semibold uppercase tracking-[0.22em] text-teal">{children}</div>
   );
 }
 
@@ -889,16 +847,12 @@ function PlatformFlowItem({
   return (
     <div
       className={`flex gap-4 rounded-xl border p-4 transition-colors ${
-        highlighted
-          ? "border-amber/30 bg-amber/5"
-          : "border-border bg-background/40"
+        highlighted ? "border-amber/30 bg-amber/5" : "border-border bg-background/40"
       }`}
     >
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
-          highlighted
-            ? "bg-amber-soft text-amber"
-            : "bg-teal-soft text-teal"
+          highlighted ? "bg-amber-soft text-amber" : "bg-teal-soft text-teal"
         }`}
       >
         <Icon className="h-5 w-5" />
@@ -907,9 +861,7 @@ function PlatformFlowItem({
       <div>
         <div className="font-semibold text-foreground">{title}</div>
 
-        <p className="mt-1 text-sm leading-5 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
       </div>
     </div>
   );
@@ -940,9 +892,7 @@ function ProblemCard({
 
       <h3 className="mt-7 text-lg font-semibold text-foreground">{title}</h3>
 
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -964,9 +914,7 @@ function SolutionCard({
 
       <h3 className="mt-6 text-xl font-semibold">{title}</h3>
 
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -991,16 +939,12 @@ function FeatureCard({
           <Icon className="h-6 w-6" />
         </div>
 
-        <span className="font-display text-sm font-semibold text-muted-foreground/50">
-          {step}
-        </span>
+        <span className="font-display text-sm font-semibold text-muted-foreground/50">{step}</span>
       </div>
 
       <h3 className="mt-7 text-2xl font-semibold">{title}</h3>
 
-      <p className="mt-4 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-4 text-sm leading-6 text-muted-foreground">{description}</p>
 
       <div className="mt-7 space-y-3 border-t border-border pt-6">
         {points.map((point) => (
@@ -1031,9 +975,7 @@ function SignalCard({
 
       <h3 className="mt-5 font-semibold">{title}</h3>
 
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -1051,9 +993,7 @@ function FlowStep({
 }) {
   return (
     <div className="relative flex gap-4">
-      {!last && (
-        <div className="absolute left-[19px] top-11 h-[calc(100%+12px)] w-px bg-border" />
-      )}
+      {!last && <div className="absolute left-[19px] top-11 h-[calc(100%+12px)] w-px bg-border" />}
 
       <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-teal/30 bg-teal-soft font-display text-sm font-semibold text-teal">
         {number}
@@ -1062,9 +1002,7 @@ function FlowStep({
       <div className="pb-5">
         <h3 className="font-semibold">{title}</h3>
 
-        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
     </div>
   );
@@ -1088,9 +1026,7 @@ function TwinConstraint({
       <div>
         <h3 className="text-sm font-semibold">{title}</h3>
 
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
       </div>
     </div>
   );
@@ -1110,9 +1046,7 @@ function DecisionFlow({
   return (
     <div
       className={`flex gap-4 rounded-xl border p-4 ${
-        final
-          ? "border-teal/30 bg-teal/5"
-          : "border-border bg-background/40"
+        final ? "border-teal/30 bg-teal/5" : "border-border bg-background/40"
       }`}
     >
       <div
@@ -1126,9 +1060,7 @@ function DecisionFlow({
       <div>
         <h3 className="text-sm font-semibold">{title}</h3>
 
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
       </div>
     </div>
   );
@@ -1152,16 +1084,12 @@ function WorkflowCard({
           <Icon className="h-6 w-6" />
         </div>
 
-        <span className="font-display text-sm font-semibold text-amber">
-          {number}
-        </span>
+        <span className="font-display text-sm font-semibold text-amber">{number}</span>
       </div>
 
       <h3 className="mt-7 text-xl font-semibold">{title}</h3>
 
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -1183,9 +1111,7 @@ function WhyCard({
 
       <h3 className="mt-5 text-lg font-semibold">{title}</h3>
 
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        {description}
-      </p>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }

@@ -70,7 +70,6 @@ export interface HealthFactors {
   temperature: TemperatureHealthFactor;
 }
 
-
 export interface MachineDetail extends Machine {
   baseline_power_kw: number;
   peak_power_kw: number;
@@ -261,7 +260,10 @@ export async function runSimulation(data: SimulateRequest): Promise<SimulateResp
   });
 }
 
-export async function fetchSchemes(industryType?: string, monthlyConsumption?: number): Promise<SchemeItem[]> {
+export async function fetchSchemes(
+  industryType?: string,
+  monthlyConsumption?: number,
+): Promise<SchemeItem[]> {
   const params = new URLSearchParams();
   if (industryType) params.append("industry_type", industryType);
   if (monthlyConsumption) params.append("monthly_consumption_kwh", monthlyConsumption.toString());
@@ -388,23 +390,15 @@ export interface ProductionOrderResponse {
 }
 
 export async function createProductionOrder(
-  order: ProductionOrderCreate
+  order: ProductionOrderCreate,
 ): Promise<ProductionOrderResponse> {
-  return request<ProductionOrderResponse>(
-    "/orders/",
-    {
-      method: "POST",
-      body: JSON.stringify(order),
-    }
-  );
+  return request<ProductionOrderResponse>("/orders/", {
+    method: "POST",
+    body: JSON.stringify(order),
+  });
 }
-export async function runProcessTwin(
-  orderId: string
-): Promise<ProcessTwinResult> {
-  return request<ProcessTwinResult>(
-    `/process-twin/simulate/${orderId}`,
-    {
-      method: "POST",
-    }
-  );
+export async function runProcessTwin(orderId: string): Promise<ProcessTwinResult> {
+  return request<ProcessTwinResult>(`/process-twin/simulate/${orderId}`, {
+    method: "POST",
+  });
 }

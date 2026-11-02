@@ -1,4 +1,3 @@
-
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { API_BASE_URL, saveSession } from "@/lib/auth";
@@ -29,12 +28,12 @@ export const Route = createFileRoute("/auth")({
 
 function LoginPage() {
   const navigate = useNavigate();
- const [email, setEmail] = useState("");
- const [password, setPassword] = useState("");
- const [showPassword, setShowPassword] = useState(false);
- const [message, setMessage] = useState("");
- const [isLoading, setIsLoading] = useState(false);
-  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -45,14 +44,14 @@ function LoginPage() {
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            password,
-          }),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -80,14 +79,11 @@ function LoginPage() {
 
       await navigate({ to: "/dashboard" });
     } catch {
-      setMessage(
-        "Unable to connect to the server. Check that the backend is running.",
-      );
+      setMessage("Unable to connect to the server. Check that the backend is running.");
     } finally {
       setIsLoading(false);
     }
   }
-
 
   return (
     <main className="industrial-grid relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -100,9 +96,7 @@ function LoginPage() {
               <Factory className="h-6 w-6" />
             </div>
             <div>
-              <div className="font-display text-lg font-semibold tracking-tight">
-                EnerSense
-              </div>
+              <div className="font-display text-lg font-semibold tracking-tight">EnerSense</div>
               <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
                 Industrial Intelligence
               </div>
@@ -134,9 +128,8 @@ function LoginPage() {
             </h1>
 
             <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">
-              Access your industrial workspace to monitor energy consumption,
-              track machine health, investigate alerts, and make smarter
-              operational decisions.
+              Access your industrial workspace to monitor energy consumption, track machine health,
+              investigate alerts, and make smarter operational decisions.
             </p>
 
             <div className="mt-10 space-y-4 border-t border-border pt-7">
@@ -187,10 +180,7 @@ function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-xs font-medium"
-                >
+                <label htmlFor="email" className="mb-2 block text-xs font-medium">
                   Work email
                 </label>
 
@@ -216,15 +206,10 @@ function LoginPage() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="block text-xs font-medium"
-                  >
+                  <label htmlFor="password" className="block text-xs font-medium">
                     Password
                   </label>
-                  <span className="text-[11px] text-muted-foreground">
-                    Account access
-                  </span>
+                  <span className="text-[11px] text-muted-foreground">Account access</span>
                 </div>
 
                 <div className="relative">
@@ -251,11 +236,7 @@ function LoginPage() {
                     aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
@@ -269,32 +250,27 @@ function LoginPage() {
                 </p>
               )}
 
-              
-<button
-  type="submit"
-  disabled={isLoading}
-  className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-amber px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-amber/90 disabled:cursor-not-allowed disabled:opacity-60"
->
-  {isLoading ? "Signing in..." : "Sign in"}
-  {!isLoading && <ArrowRight className="h-4 w-4" />}
-</button>
- 
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-amber px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-amber/90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isLoading ? "Signing in..." : "Sign in"}
+                {!isLoading && <ArrowRight className="h-4 w-4" />}
+              </button>
             </form>
 
             <div className="mt-6 flex items-start gap-2 border-t border-border pt-5">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
               <p className="text-[11px] leading-5 text-muted-foreground">
-                Your industrial workspace is designed to keep plant operations
-                and monitoring data organized.
+                Your industrial workspace is designed to keep plant operations and monitoring data
+                organized.
               </p>
             </div>
 
             <p className="mt-6 text-center text-xs text-muted-foreground">
               Exploring EnerSense?{" "}
-              <Link
-                to="/"
-                className="font-semibold text-amber transition-colors hover:underline"
-              >
+              <Link to="/" className="font-semibold text-amber transition-colors hover:underline">
                 View the platform
               </Link>
             </p>

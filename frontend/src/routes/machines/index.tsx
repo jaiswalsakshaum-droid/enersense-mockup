@@ -12,9 +12,17 @@ export const Route = createFileRoute("/machines/")({
   head: () => ({
     meta: [
       { title: "Machines — EnerSense" },
-      { name: "description", content: "Monitor health scores, status, power draw, and maintenance dates for every machine." },
+      {
+        name: "description",
+        content:
+          "Monitor health scores, status, power draw, and maintenance dates for every machine.",
+      },
       { property: "og:title", content: "Machines — EnerSense" },
-      { property: "og:description", content: "Monitor health scores, status, power draw, and maintenance dates for every machine." },
+      {
+        property: "og:description",
+        content:
+          "Monitor health scores, status, power draw, and maintenance dates for every machine.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -27,7 +35,12 @@ function Machines() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<"all" | "attention" | "healthy">("all");
 
-  const { data: machines, isLoading, isError, refetch } = useQuery({
+  const {
+    data: machines,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["machines"],
     queryFn: fetchMachines,
   });
@@ -49,7 +62,9 @@ function Machines() {
     return true;
   });
 
-  const attentionCount = (machines || []).filter((m) => m.status === "Critical" || m.status === "Warning").length;
+  const attentionCount = (machines || []).filter(
+    (m) => m.status === "Critical" || m.status === "Warning",
+  ).length;
   const healthyCount = (machines || []).filter((m) => m.status === "Normal").length;
 
   return (
@@ -58,7 +73,10 @@ function Machines() {
         <PageHeading
           eyebrow={`Equipment registry · ${machines?.length ? String(machines.length).padStart(2, "0") : "05"} monitored assets`}
           title={t("machines.title", "Machines")}
-          description={t("machines.desc", "A clear view of health, operating status, and service readiness across the plant.")}
+          description={t(
+            "machines.desc",
+            "A clear view of health, operating status, and service readiness across the plant.",
+          )}
           action={
             <Button className="gap-2 bg-amber text-primary-foreground hover:bg-amber/90">
               <Plus className="h-4 w-4" />
@@ -82,7 +100,12 @@ function Machines() {
             <Filter className="h-4 w-4" />
             All lines
           </Button>
-          <Button variant="outline" size="icon" className="hidden border-border bg-panel sm:inline-flex" aria-label="More filters">
+          <Button
+            variant="outline"
+            size="icon"
+            className="hidden border-border bg-panel sm:inline-flex"
+            aria-label="More filters"
+          >
             <SlidersHorizontal className="h-4 w-4" />
           </Button>
         </div>
@@ -94,7 +117,9 @@ function Machines() {
             className={`pb-3 font-semibold transition-colors ${tab === "all" ? "border-b-2 border-amber text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             {t("machines.all", "All machines")}{" "}
-            <span className="ml-1 text-muted-foreground">{machines ? String(machines.length).padStart(2, "0") : "05"}</span>
+            <span className="ml-1 text-muted-foreground">
+              {machines ? String(machines.length).padStart(2, "0") : "05"}
+            </span>
           </button>
           <button
             onClick={() => setTab("attention")}
@@ -132,9 +157,16 @@ function Machines() {
         {isError && (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/10 p-10 text-center">
             <ShieldAlert className="h-10 w-10 text-critical" />
-            <h3 className="mt-3 font-display text-lg font-semibold text-foreground">Could not load machines</h3>
-            <p className="mt-1 text-xs text-muted-foreground">Check your connection to FastAPI backend.</p>
-            <Button onClick={() => refetch()} className="mt-4 bg-amber text-primary-foreground hover:bg-amber/90">
+            <h3 className="mt-3 font-display text-lg font-semibold text-foreground">
+              Could not load machines
+            </h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Check your connection to FastAPI backend.
+            </p>
+            <Button
+              onClick={() => refetch()}
+              className="mt-4 bg-amber text-primary-foreground hover:bg-amber/90"
+            >
               Retry
             </Button>
           </div>

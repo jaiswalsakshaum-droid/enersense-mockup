@@ -1,6 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Banknote, Calculator, CheckCircle2, ChevronRight, Clock3, Cpu, Gauge, Leaf, Loader2, Sparkles, TrendingDown, Wrench, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Banknote,
+  Calculator,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  Cpu,
+  Gauge,
+  Leaf,
+  Loader2,
+  Sparkles,
+  TrendingDown,
+  Wrench,
+  Zap,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { AppShell, PageHeading, SectionLabel, StatCard } from "@/components/enersense";
 import { Button } from "@/components/ui/button";
@@ -11,9 +27,17 @@ export const Route = createFileRoute("/simulate")({
   head: () => ({
     meta: [
       { title: "What-If Simulator — EnerSense" },
-      { name: "description", content: "Model the financial and energy savings of plant interventions before capital expenditure." },
+      {
+        name: "description",
+        content:
+          "Model the financial and energy savings of plant interventions before capital expenditure.",
+      },
       { property: "og:title", content: "What-If Simulator — EnerSense" },
-      { property: "og:description", content: "Model the financial and energy savings of plant interventions before capital expenditure." },
+      {
+        property: "og:description",
+        content:
+          "Model the financial and energy savings of plant interventions before capital expenditure.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -86,7 +110,7 @@ function SimulatorPage() {
           title={t("sim.title", "What-If Simulator")}
           description={t(
             "sim.desc",
-            "Model the financial & energy impact of load shifting, VFD retrofits, and leak fixes before investing."
+            "Model the financial & energy impact of load shifting, VFD retrofits, and leak fixes before investing.",
           )}
           action={
             <Button
@@ -94,7 +118,11 @@ function SimulatorPage() {
               disabled={mutation.isPending}
               className="gap-2 bg-amber text-primary-foreground hover:bg-amber/90"
             >
-              {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calculator className="h-4 w-4" />}
+              {mutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Calculator className="h-4 w-4" />
+              )}
               Recalculate Scenario
             </Button>
           }
@@ -118,7 +146,9 @@ function SimulatorPage() {
                   <Clock3 className="h-4 w-4 text-amber shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">1. ToD Tariff Load Shift</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">Shift batch ramp-up to night off-peak tariff</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      Shift batch ramp-up to night off-peak tariff
+                    </div>
                   </div>
                 </button>
 
@@ -134,7 +164,9 @@ function SimulatorPage() {
                   <Cpu className="h-4 w-4 text-teal shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">2. VFD & Motor Upgrade</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">Install inverter drive on fans/pumps</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      Install inverter drive on fans/pumps
+                    </div>
                   </div>
                 </button>
 
@@ -150,7 +182,9 @@ function SimulatorPage() {
                   <Wrench className="h-4 w-4 text-critical shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">3. Leak & Heat Loss Fix</div>
-                    <div className="text-[11px] text-muted-foreground mt-0.5">Fix air manifold leaks & door seals</div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      Fix air manifold leaks & door seals
+                    </div>
                   </div>
                 </button>
               </div>
@@ -164,7 +198,9 @@ function SimulatorPage() {
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="text-muted-foreground">Shifted Load per Day</span>
-                        <span className="font-semibold text-foreground font-display">{shiftKwh} kWh / day</span>
+                        <span className="font-semibold text-foreground font-display">
+                          {shiftKwh} kWh / day
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -178,7 +214,9 @@ function SimulatorPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       <div>
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Peak Tariff</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Peak Tariff
+                        </label>
                         <input
                           type="number"
                           step="0.1"
@@ -188,7 +226,9 @@ function SimulatorPage() {
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Off-Peak Tariff</label>
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          Off-Peak Tariff
+                        </label>
                         <input
                           type="number"
                           step="0.1"
@@ -206,7 +246,9 @@ function SimulatorPage() {
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="text-muted-foreground">Motor Rating</span>
-                        <span className="font-semibold text-foreground font-display">{connectedLoadKw} kW</span>
+                        <span className="font-semibold text-foreground font-display">
+                          {connectedLoadKw} kW
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -221,7 +263,9 @@ function SimulatorPage() {
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="text-muted-foreground">Efficiency Gain</span>
-                        <span className="font-semibold text-teal font-display">{efficiencyGainPct}%</span>
+                        <span className="font-semibold text-teal font-display">
+                          {efficiencyGainPct}%
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -234,7 +278,9 @@ function SimulatorPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Estimated Capex (₹)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Estimated Capex (₹)
+                      </label>
                       <input
                         type="number"
                         step="5000"
@@ -251,7 +297,9 @@ function SimulatorPage() {
                     <div>
                       <div className="flex justify-between text-xs mb-1.5">
                         <span className="text-muted-foreground">Pneumatic Leak Points</span>
-                        <span className="font-semibold text-foreground font-display">{leakCount} points</span>
+                        <span className="font-semibold text-foreground font-display">
+                          {leakCount} points
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -264,7 +312,9 @@ function SimulatorPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Repair Cost (₹)</label>
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Repair Cost (₹)
+                      </label>
                       <input
                         type="number"
                         step="1000"
@@ -293,10 +343,14 @@ function SimulatorPage() {
                 {/* Highlight Hero Card */}
                 <div className="rounded-xl border border-teal/40 bg-teal-soft/30 p-6 sm:p-7">
                   <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-teal">
-                    <Sparkles className="h-3.5 w-3.5" /> Simulation Result · {result.intervention_title}
+                    <Sparkles className="h-3.5 w-3.5" /> Simulation Result ·{" "}
+                    {result.intervention_title}
                   </div>
                   <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                    Save <span className="text-teal">₹{result.projected_savings_rupees_per_month.toLocaleString("en-IN")} / month</span>
+                    Save{" "}
+                    <span className="text-teal">
+                      ₹{result.projected_savings_rupees_per_month.toLocaleString("en-IN")} / month
+                    </span>
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {result.summary}
@@ -304,34 +358,38 @@ function SimulatorPage() {
 
                   <div className="mt-6 grid gap-4 border-t border-teal/20 pt-5 sm:grid-cols-3">
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Payback Time</div>
+                      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                        Payback Time
+                      </div>
                       <div className="mt-1 font-display text-2xl font-semibold text-amber">
-                        {result.payback_months} <span className="text-xs font-normal text-muted-foreground">months</span>
+                        {result.payback_months}{" "}
+                        <span className="text-xs font-normal text-muted-foreground">months</span>
                       </div>
                     </div>
                     <div>
                       <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-                      {result.kwh_saved_monthly > 0
-                        ? "Monthly Energy Reduction"
-                        : "Energy Impact"}
-                    </div>
-
-                    <div className="mt-1 font-display text-2xl font-semibold text-foreground">
-                      {result.kwh_saved_monthly > 0
-                        ? `${result.kwh_saved_monthly.toLocaleString("en-IN")} kWh`
-                        : "0 kWh"}
-                    </div>
-
-                    {result.kwh_saved_monthly === 0 && (
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        Tariff shift only
+                        {result.kwh_saved_monthly > 0
+                          ? "Monthly Energy Reduction"
+                          : "Energy Impact"}
                       </div>
-                    )}
+
+                      <div className="mt-1 font-display text-2xl font-semibold text-foreground">
+                        {result.kwh_saved_monthly > 0
+                          ? `${result.kwh_saved_monthly.toLocaleString("en-IN")} kWh`
+                          : "0 kWh"}
+                      </div>
+
+                      {result.kwh_saved_monthly === 0 && (
+                        <div className="mt-1 text-xs text-muted-foreground">Tariff shift only</div>
+                      )}
                     </div>
                     <div>
-                      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">CO₂ Avoided</div>
+                      <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                        CO₂ Avoided
+                      </div>
                       <div className="mt-1 font-display text-2xl font-semibold text-teal">
-                        {result.co2_reduction_tons_per_year} <span className="text-xs font-normal text-muted-foreground">t / yr</span>
+                        {result.co2_reduction_tons_per_year}{" "}
+                        <span className="text-xs font-normal text-muted-foreground">t / yr</span>
                       </div>
                     </div>
                   </div>
@@ -341,7 +399,9 @@ function SimulatorPage() {
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="glass-panel rounded-xl border border-border p-5">
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-semibold uppercase tracking-wider">Baseline (Current)</span>
+                      <span className="font-semibold uppercase tracking-wider">
+                        Baseline (Current)
+                      </span>
                       <span className="h-2 w-2 rounded-full bg-border" />
                     </div>
                     <div className="mt-4 font-display text-3xl font-semibold text-foreground">
@@ -349,13 +409,18 @@ function SimulatorPage() {
                       <span className="text-xs text-muted-foreground font-normal ml-1">/ mo</span>
                     </div>
                     <div className="mt-2 text-xs text-muted-foreground">
-                      Monthly consumption: <strong className="text-foreground">{result.baseline_kwh.toLocaleString("en-IN")} kWh</strong>
+                      Monthly consumption:{" "}
+                      <strong className="text-foreground">
+                        {result.baseline_kwh.toLocaleString("en-IN")} kWh
+                      </strong>
                     </div>
                   </div>
 
                   <div className="glass-panel rounded-xl border border-teal/40 bg-panel-raised p-5">
                     <div className="flex items-center justify-between text-xs text-teal">
-                      <span className="font-semibold uppercase tracking-wider">Projected (After Fix)</span>
+                      <span className="font-semibold uppercase tracking-wider">
+                        Projected (After Fix)
+                      </span>
                       <span className="h-2 w-2 rounded-full bg-teal" />
                     </div>
                     <div className="mt-4 font-display text-3xl font-semibold text-teal">
@@ -363,8 +428,9 @@ function SimulatorPage() {
                       <span className="text-xs text-muted-foreground font-normal ml-1">/ mo</span>
                     </div>
                     <div className="mt-2 text-xs text-teal flex items-center gap-1.5 font-medium">
-                      <TrendingDown className="h-3.5 w-3.5" />
-                      ₹{result.projected_savings_rupees_per_month.toLocaleString("en-IN")} / month net reduction
+                      <TrendingDown className="h-3.5 w-3.5" />₹
+                      {result.projected_savings_rupees_per_month.toLocaleString("en-IN")} / month
+                      net reduction
                     </div>
                   </div>
                 </div>
@@ -376,8 +442,8 @@ function SimulatorPage() {
                       Ready to implement this recommendation?
                     </h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                    Check available government energy-efficiency schemes for this intervention.
-                  </p>
+                      Check available government energy-efficiency schemes for this intervention.
+                    </p>
                   </div>
                   <Link to="/audit">
                     <Button variant="outline" className="gap-2 border-border bg-panel text-xs">

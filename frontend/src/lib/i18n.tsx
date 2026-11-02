@@ -37,14 +37,20 @@ const translations: TranslationDictionary = {
 
   // Dashboard sections
   "dash.load_title": { en: "Plant load over time", hi: "समय के साथ प्लांट लोड" },
-  "dash.load_desc": { en: "Aggregate energy use across 5 monitored machines", hi: "5 निगरानी मशीनों में कुल ऊर्जा खपत" },
+  "dash.load_desc": {
+    en: "Aggregate energy use across 5 monitored machines",
+    hi: "5 निगरानी मशीनों में कुल ऊर्जा खपत",
+  },
   "dash.attention_title": { en: "Latest alerts", hi: "नवीनतम अलर्ट" },
   "dash.view_all_alerts": { en: "View all alerts", hi: "सभी अलर्ट देखें" },
   "dash.benchmark_title": { en: "Peer Benchmarking", hi: "सहकर्मी बेंचमार्किंग" },
 
   // Machines
   "machines.title": { en: "Machines", hi: "मशीनें" },
-  "machines.desc": { en: "A clear view of health, operating status, and service readiness across the plant.", hi: "प्लांट में स्वास्थ्य, ऑपरेटिंग स्थिति और सेवा तत्परता का स्पष्ट विवरण।" },
+  "machines.desc": {
+    en: "A clear view of health, operating status, and service readiness across the plant.",
+    hi: "प्लांट में स्वास्थ्य, ऑपरेटिंग स्थिति और सेवा तत्परता का स्पष्ट विवरण।",
+  },
   "machines.search": { en: "Search machines", hi: "मशीनें खोजें..." },
   "machines.all": { en: "All machines", hi: "सभी मशीनें" },
   "machines.attention": { en: "Needs attention", hi: "ध्यान देने योग्य" },
@@ -56,15 +62,30 @@ const translations: TranslationDictionary = {
 
   // Alerts
   "alerts.title": { en: "Alerts", hi: "अलर्ट" },
-  "alerts.desc": { en: "Stay ahead of issues with machine events ordered by urgency.", hi: "प्राथमिकता के अनुसार व्यवस्थित मशीन घटनाओं की जानकारी रखें।" },
-  "alerts.whatsapp_toggle": { en: "Send critical alerts to WhatsApp", hi: "महत्वपूर्ण अलर्ट व्हाट्सएप पर भेजें" },
+  "alerts.desc": {
+    en: "Stay ahead of issues with machine events ordered by urgency.",
+    hi: "प्राथमिकता के अनुसार व्यवस्थित मशीन घटनाओं की जानकारी रखें।",
+  },
+  "alerts.whatsapp_toggle": {
+    en: "Send critical alerts to WhatsApp",
+    hi: "महत्वपूर्ण अलर्ट व्हाट्सएप पर भेजें",
+  },
 
   // Audit & Simulator
   "audit.title": { en: "Energy audit", hi: "ऊर्जा ऑडिट" },
-  "audit.desc": { en: "Turn your plant’s energy signals into a ranked action plan with clear financial impact.", hi: "अपने प्लांट के ऊर्जा संकेतों को स्पष्ट वित्तीय लाभ वाली कार्य योजना में बदलें।" },
-  "audit.schemes_title": { en: "BEE & Government Energy Schemes", hi: "BEE एवं सरकारी ऊर्जा योजनाएं" },
+  "audit.desc": {
+    en: "Turn your plant’s energy signals into a ranked action plan with clear financial impact.",
+    hi: "अपने प्लांट के ऊर्जा संकेतों को स्पष्ट वित्तीय लाभ वाली कार्य योजना में बदलें।",
+  },
+  "audit.schemes_title": {
+    en: "BEE & Government Energy Schemes",
+    hi: "BEE एवं सरकारी ऊर्जा योजनाएं",
+  },
   "sim.title": { en: "What-If Simulator", hi: "व्हाट-इफ सिम्युलेटर" },
-  "sim.desc": { en: "Model the financial & energy impact of load shifting, VFD retrofits, and leak fixes before investing.", hi: "निवेश से पहले लोड शिफ्टिंग, VFD रेट्रोफिट और लीक सुधार के वित्तीय प्रभाव का आकलन करें।" },
+  "sim.desc": {
+    en: "Model the financial & energy impact of load shifting, VFD retrofits, and leak fixes before investing.",
+    hi: "निवेश से पहले लोड शिफ्टिंग, VFD रेट्रोफिट और लीक सुधार के वित्तीय प्रभाव का आकलन करें।",
+  },
 };
 
 interface LanguageContextType {

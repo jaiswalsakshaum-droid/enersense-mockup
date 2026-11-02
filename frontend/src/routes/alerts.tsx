@@ -1,6 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Bell, CheckCircle2, Clock3, Info, MessageSquare, MoreHorizontal, Send, ShieldAlert, SlidersHorizontal, Smartphone } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  CheckCircle2,
+  Clock3,
+  Info,
+  MessageSquare,
+  MoreHorizontal,
+  Send,
+  ShieldAlert,
+  SlidersHorizontal,
+  Smartphone,
+} from "lucide-react";
 import { useState } from "react";
 import { AppShell, PageHeading, SectionLabel, StatusBadge } from "@/components/enersense";
 import { Button } from "@/components/ui/button";
@@ -13,9 +25,15 @@ export const Route = createFileRoute("/alerts")({
   head: () => ({
     meta: [
       { title: "Alerts — EnerSense" },
-      { name: "description", content: "Review machine alerts, severity, timestamps, and recommended next actions." },
+      {
+        name: "description",
+        content: "Review machine alerts, severity, timestamps, and recommended next actions.",
+      },
       { property: "og:title", content: "Alerts — EnerSense" },
-      { property: "og:description", content: "Review machine alerts, severity, timestamps, and recommended next actions." },
+      {
+        property: "og:description",
+        content: "Review machine alerts, severity, timestamps, and recommended next actions.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -27,7 +45,12 @@ function Alerts() {
   const { t } = useTranslation();
   const [whatsappEnabled, setWhatsappEnabled] = useState(true);
 
-  const { data: alerts, isLoading, isError, refetch } = useQuery({
+  const {
+    data: alerts,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["alerts"],
     queryFn: fetchAlerts,
   });
@@ -44,7 +67,10 @@ function Alerts() {
         <PageHeading
           eyebrow={`Operations center · ${String(criticalCount + warningCount).padStart(2, "0")} active`}
           title={t("alerts.title", "Alerts")}
-          description={t("alerts.desc", "Stay ahead of issues with machine events ordered by urgency.")}
+          description={t(
+            "alerts.desc",
+            "Stay ahead of issues with machine events ordered by urgency.",
+          )}
           action={
             <Button variant="outline" className="gap-2 border-border bg-panel">
               <SlidersHorizontal className="h-4 w-4" />
@@ -55,9 +81,24 @@ function Alerts() {
 
         {/* Summary Stat Cards */}
         <div className="grid gap-4 sm:grid-cols-3">
-          <AlertSummary icon={AlertTriangle} label="Critical" value={String(criticalCount).padStart(2, "0")} tone="critical" />
-          <AlertSummary icon={Clock3} label="Warning" value={String(warningCount).padStart(2, "0")} tone="amber" />
-          <AlertSummary icon={CheckCircle2} label="Resolved today" value={String(resolvedCount).padStart(2, "0")} tone="teal" />
+          <AlertSummary
+            icon={AlertTriangle}
+            label="Critical"
+            value={String(criticalCount).padStart(2, "0")}
+            tone="critical"
+          />
+          <AlertSummary
+            icon={Clock3}
+            label="Warning"
+            value={String(warningCount).padStart(2, "0")}
+            tone="amber"
+          />
+          <AlertSummary
+            icon={CheckCircle2}
+            label="Resolved today"
+            value={String(resolvedCount).padStart(2, "0")}
+            tone="teal"
+          />
         </div>
 
         {/* Feature 2: WhatsApp Alert Integration & Live Preview Card */}
@@ -72,12 +113,16 @@ function Alerts() {
                   WhatsApp Instant Dispatch
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Instantly forward Critical anomalies to plant supervisor mobile numbers (+91-98765-XXXXX)
+                  Instantly forward Critical anomalies to plant supervisor mobile numbers
+                  (+91-98765-XXXXX)
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <label htmlFor="wa-toggle" className="text-xs font-medium text-foreground cursor-pointer">
+              <label
+                htmlFor="wa-toggle"
+                className="text-xs font-medium text-foreground cursor-pointer"
+              >
                 {t("alerts.whatsapp_toggle", "Send critical alerts to WhatsApp")}
               </label>
               <Switch
@@ -142,9 +187,16 @@ function Alerts() {
           {isError && (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/10 p-10 text-center">
               <ShieldAlert className="h-10 w-10 text-critical" />
-              <h3 className="mt-3 font-display text-lg font-semibold text-foreground">Could not load alerts</h3>
-              <p className="mt-1 text-xs text-muted-foreground">Please check backend API connection.</p>
-              <Button onClick={() => refetch()} className="mt-4 bg-amber text-primary-foreground hover:bg-amber/90">
+              <h3 className="mt-3 font-display text-lg font-semibold text-foreground">
+                Could not load alerts
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Please check backend API connection.
+              </p>
+              <Button
+                onClick={() => refetch()}
+                className="mt-4 bg-amber text-primary-foreground hover:bg-amber/90"
+              >
                 Retry
               </Button>
             </div>
@@ -172,10 +224,10 @@ function Alerts() {
                         alert.severity === "Critical"
                           ? "bg-critical/15 text-critical"
                           : alert.severity === "Warning"
-                          ? "bg-amber-soft text-amber"
-                          : alert.severity === "Resolved"
-                          ? "bg-teal-soft text-teal"
-                          : "bg-teal-soft text-info"
+                            ? "bg-amber-soft text-amber"
+                            : alert.severity === "Resolved"
+                              ? "bg-teal-soft text-teal"
+                              : "bg-teal-soft text-info"
                       }`}
                     >
                       {alert.severity === "Critical" ? (
@@ -190,7 +242,9 @@ function Alerts() {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-foreground">{alert.title}</div>
-                      <div className="mt-1 max-w-lg text-xs leading-5 text-muted-foreground">{alert.detail}</div>
+                      <div className="mt-1 max-w-lg text-xs leading-5 text-muted-foreground">
+                        {alert.detail}
+                      </div>
                     </div>
                   </div>
                   <div className="pl-11 text-xs text-muted-foreground md:pl-0">{alert.machine}</div>
@@ -198,7 +252,12 @@ function Alerts() {
                     <StatusBadge status={alert.severity} />
                   </div>
                   <div className="pl-11 text-xs text-muted-foreground md:pl-0">{alert.time}</div>
-                  <Button variant="ghost" size="icon" className="hidden text-muted-foreground md:inline-flex" aria-label="Alert options">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hidden text-muted-foreground md:inline-flex"
+                    aria-label="Alert options"
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </div>
@@ -226,8 +285,8 @@ function AlertSummary({
     tone === "critical"
       ? "bg-critical/15 text-critical"
       : tone === "amber"
-      ? "bg-amber-soft text-amber"
-      : "bg-teal-soft text-teal";
+        ? "bg-amber-soft text-amber"
+        : "bg-teal-soft text-teal";
 
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border bg-panel p-4">
