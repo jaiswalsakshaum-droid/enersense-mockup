@@ -137,6 +137,7 @@ The root route redirects to the login page.
 | `JWT_SECRET` | `backend/.env` | Token signing key. Required; the backend will not start without it |
 | `ML_ENGINE_URL` | `backend/.env` | ML service URL (default `http://127.0.0.1:8000`) |
 | `VITE_API_BASE_URL` | `frontend/.env` | Backend API URL (default `http://localhost:4000/api`) |
+| `CORS_ORIGINS` | `backend/.env` | Comma-separated browser origins allowed to call the API (default: the local Vite dev server) |
 
 ---
 
